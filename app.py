@@ -2,62 +2,100 @@ import streamlit as st
 import pandas as pd
 from database import *
 
-# Criar tabela
-criar_tabela()
+criar_tabelas()
 
 st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
 
-st.title("🐄 Gestão de Rebanho - MVP")
+st.title("🐄 Gestão de Rebanho - v2.0")
 
-menu = st.sidebar.selectbox("Menu", ["Cadastrar Animal", "Visualizar Dados"])
+menu = st.sidebar.selectbox(
+    "Menu",
+    ["Cadastrar Animal", "Registrar Pesagem", "Analisar Animal"]
+)
 
-# -------------------------------
-# CADASTRO
-# -------------------------------
+# ---------------------------
+# CADASTRAR ANIMAL
+# ---------------------------
 if menu == "Cadastrar Animal":
-    st.subheader("Cadastro de Animal")
+    st.subheader("Novo Animal")
 
-    identificacao = st.text_input("Identificação (ex: Brinco 001)")
-    idade = st.number_input("Idade (meses)", min_value=0, max_value=240)
-    peso = st.number_input("Peso (kg)", min_value=0.0)
-    data = st.date_input("Data da pesagem")
+    identificacao = st.text_input("Identificação")
+    idade = st.number_input("Idade (meses)", 0, 240)
 
-    if st.button("Salvar"):
-        if identificacao != "":
-            adicionar_animal(identificacao, idade, peso, str(data))
-            st.success("✅ Animal cadastrado com sucesso!")
+    if st.button("Salvar Animal"):
+        if identificacao:
+            adicionar_animal(identificacao, idade)
+            st.success("Animal cadastrado!")
         else:
-            st.error("⚠️ Informe a identificação")
+            st.error("Informe a identificação")
 
-# -------------------------------
-# VISUALIZAÇÃO
-# -------------------------------
-if menu == "Visualizar Dados":
-    st.subheader("Dados do Rebanho")
+# ---------------------------
+# REGISTRAR PESAGEM
+# ---------------------------
+elif menu == "Registrar Pesagem":
+    st.subheader("Registrar Peso")
 
-    dados = listar_animais()
+    animais = listar_animais()
 
-    if len(dados) > 0:
-        df = pd.DataFrame(dados, columns=["ID", "Identificação", "Idade", "Peso", "Data"])
-
-        st.dataframe(df)
-
-        st.subheader("📈 Evolução de Peso")
-
-        # Converter data
-        df["Data"] = pd.to_datetime(df["Data"])
-
-        df = df.sort_values("Data")
-
-        st.line_chart(df.set_index("Data")["Peso"])
-
-        # ALERTA SIMPLES
-        peso_medio = df["Peso"].mean()
-
-        if peso_medio < 200:
-            st.warning("⚠️ Peso médio baixo — avaliar manejo alimentar")
-        else:
-            st.success("✅ Peso médio adequado")
-
+    if len(animais) == 0:
+        st.warning("Cadastre um animal primeiro")
     else:
-        st.info("Nenhum dado cadastrado ainda.")
+        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+        escolha = st.selectbox("Animal", list(dict_animais.keys()))
+        animal_id = dict_animais[escolha]
+
+        peso = st.number_input("Peso (kg)", 0.0)
+        data = st.date_input("Data")
+
+        if st.button("Salvar Pesagem"):
+            if peso > 1000:
+                st.error("Peso muito alto — verificar valor")
+            elif peso == 0:
+                st.error("Informe o peso")
+            else:
+                adicionar_pesagem(animal_id, peso, str(data))
+                st.success("Pesagem registrada!")
+
+# ---------------------------
+# ANÁLISE
+# ---------------------------
+elif menu == "Analisar Animal":
+    st.subheader("Análise do Animal")
+
+    animais = listar_animais()
+
+    if len(animais) == 0:
+        st.warning("Cadastre um animal primeiro")
+    else:
+        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+        escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+        animal_id = dict_animais[escolha]
+
+        pesagens = listar_pesagens(animal_id)
+
+        if len(pesagens) > 0:
+            df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+
+            df["Data"] = pd.to_datetime(df["Data"])
+            df = df.sort_values("Data")
+
+            st.dataframe(df)
+
+            st.subheader("📈 Evolução de Peso")
+            st.line_chart(df.set_index("Data")["Peso"])
+
+            # INSIGHT
+            if len(df) > 1:
+                ganho_medio = df["Peso"].diff().mean()
+
+                st.write(f"📊 Ganho médio: {ganho_medio:.2f} kg/dia")
+
+                if ganho_medio < 0.3:
+                    st.warning("⚠️ Baixo ganho de peso")
+                else:
+                    st.success("✅ Ganho adequado")
+
+        else:
+            st.info("Sem pesagens registradas")
