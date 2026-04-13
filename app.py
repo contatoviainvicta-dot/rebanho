@@ -1,96 +1,38 @@
-import streamlit as st
-import pandas as pd
-from database import (
-    criar_tabelas,
-    listar_lotes,
-    adicionar_lote,
-    obter_lote,
-    listar_animais,
-    listar_animais_por_lote,
-    adicionar_animal,
-    contar_animais_no_lote,
-    adicionar_pesagem,
-    listar_pesagens
-)
-
-# Inicializar banco
-criar_tabelas()
-
-st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
-
-st.title("🐄 Gestão de Rebanho - v3.1")
-
-menu = st.sidebar.selectbox(
-    "Menu",
-    [
-        "Cadastrar Lote",
-        "Cadastrar Animal",
-        "Registrar Pesagem",
-        "Analisar por Lote",
-        "Analisar Animal"
-    ]
-)
-
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
+if menu == "Cadastrar Lote":
+    st.subheader("Novo Lote")
 
-elif menu == "Analisar Animal":
-    st.subheader("Análise do Animal")
+    nome = st.text_input("Nome do lote")
+    descricao = st.text_area("Descrição")
+    data = st.date_input("Data")
 
-    lotes = listar_lotes()
+    qtd_comprada = st.number_input("Quantidade comprada", 0)
+    qtd_recebida = st.number_input("Quantidade recebida", 0)
+    transporte = st.text_input("Tipo de transporte")
 
-    if len(lotes) == 0:
-        st.warning("Nenhum lote cadastrado")
+    if st.button("Salvar Lote"):
+        if not nome:
+            st.error("Informe o nome do lote")
 
-    else:
-        # 🔹 selecionar lote
-        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+        elif qtd_recebida > qtd_comprada:
+            st.error("Quantidade recebida não pode ser maior que a comprada")
 
-        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
-        lote_id = dict_lotes[escolha_lote]
-
-        # 🔹 buscar animais do lote
-        animais = listar_animais_por_lote(lote_id)
-
-        if len(animais) == 0:
-            st.warning("Nenhum animal neste lote")
+        elif qtd_recebida == 0:
+            st.error("Informe a quantidade recebida")
 
         else:
-            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+            adicionar_lote(
+                nome,
+                descricao,
+                str(data),
+                qtd_comprada,
+                qtd_recebida,
+                transporte
+            )
+            st.success("Lote criado com sucesso!")
 
-            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-            animal_id = dict_animais[escolha_animal]
-
-            pesagens = listar_pesagens(animal_id)
-
-            if len(pesagens) > 0:
-                df = pd.DataFrame(
-                    pesagens,
-                    columns=["ID", "Animal", "Peso", "Data"]
-                )
-
-                df["Data"] = pd.to_datetime(df["Data"])
-                df = df.sort_values("Data")
-
-                st.dataframe(df)
-
-                st.subheader("📈 Evolução de Peso")
-                st.line_chart(df.set_index("Data")["Peso"])
-
-                # INSIGHT
-                if len(df) > 1:
-                    ganho = df["Peso"].diff().mean()
-
-                    st.write(f"📊 Ganho médio: {ganho:.2f} kg/dia")
-
-                    if ganho < 0.3:
-                        st.warning("⚠️ Baixo ganho de peso")
-                    else:
-                        st.success("✅ Ganho adequado")
-
-            else:
-                st.info("Sem pesagens registradas")
 
 # ---------------------------
 # CADASTRAR ANIMAL
@@ -130,10 +72,10 @@ elif menu == "Cadastrar Animal":
                     adicionar_animal(identificacao, idade, lote_id)
                     st.success("Animal cadastrado com sucesso!")
 
+
 # ---------------------------
 # REGISTRAR PESAGEM
 # ---------------------------
-
 elif menu == "Registrar Pesagem":
     st.subheader("Registrar Peso")
 
@@ -143,13 +85,11 @@ elif menu == "Registrar Pesagem":
         st.warning("Cadastre um lote primeiro")
 
     else:
-        # 🔹 selecionar lote
         dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
 
         escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
         lote_id = dict_lotes[escolha_lote]
 
-        # 🔹 buscar animais do lote
         animais = listar_animais_por_lote(lote_id)
 
         if len(animais) == 0:
@@ -165,16 +105,15 @@ elif menu == "Registrar Pesagem":
             data = st.date_input("Data")
 
             if st.button("Salvar Pesagem"):
-
                 if peso <= 0:
                     st.error("Informe um peso válido")
-
                 elif peso > 1000:
-                    st.error("Peso muito alto — verificar valor")
-
+                    st.error("Peso muito alto")
                 else:
                     adicionar_pesagem(animal_id, peso, str(data))
-                    st.success("Pesagem registrada com sucesso!")
+                    st.success("Pesagem registrada!")
+
+
 # ---------------------------
 # ANÁLISE POR LOTE
 # ---------------------------
@@ -194,27 +133,13 @@ elif menu == "Analisar por Lote":
 
         lote = obter_lote(lote_id)
 
-        qtd_comprada = lote[4]
-        qtd_recebida = lote[5]
-
-        perda = qtd_comprada - qtd_recebida
-
-        st.write(f"📦 Comprados: {qtd_comprada}")
-        st.write(f"📥 Recebidos: {qtd_recebida}")
-
-        if perda > 0:
-            st.warning(f"⚠️ Perda no transporte: {perda}")
+        st.write(f"📦 Comprados: {lote[4]}")
+        st.write(f"📥 Recebidos: {lote[5]}")
 
         animais = listar_animais_por_lote(lote_id)
 
-        st.write(f"🐄 Animais cadastrados: {len(animais)}")
+        st.write(f"🐄 Total: {len(animais)}")
 
-        if len(animais) > 0:
-            df_animais = pd.DataFrame(
-                animais,
-                columns=["ID", "Identificação", "Idade", "Lote"]
-            )
-            st.dataframe(df_animais)
 
 # ---------------------------
 # ANÁLISE INDIVIDUAL
@@ -222,42 +147,34 @@ elif menu == "Analisar por Lote":
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
 
-    animais = listar_animais()
+    lotes = listar_lotes()
 
-    if len(animais) == 0:
-        st.warning("Nenhum animal cadastrado")
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
 
     else:
-        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
 
-        escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-        animal_id = dict_animais[escolha]
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
 
-        pesagens = listar_pesagens(animal_id)
+        animais = listar_animais_por_lote(lote_id)
 
-        if len(pesagens) > 0:
-            df = pd.DataFrame(
-                pesagens,
-                columns=["ID", "Animal", "Peso", "Data"]
-            )
-
-            df["Data"] = pd.to_datetime(df["Data"])
-            df = df.sort_values("Data")
-
-            st.dataframe(df)
-
-            st.subheader("📈 Evolução de Peso")
-            st.line_chart(df.set_index("Data")["Peso"])
-
-            if len(df) > 1:
-                ganho = df["Peso"].diff().mean()
-
-                st.write(f"📊 Ganho médio: {ganho:.2f} kg/dia")
-
-                if ganho < 0.3:
-                    st.warning("⚠️ Baixo ganho de peso")
-                else:
-                    st.success("✅ Ganho adequado")
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
 
         else:
-            st.info("Sem pesagens registradas")
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
+
+            pesagens = listar_pesagens(animal_id)
+
+            if len(pesagens) > 0:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                st.dataframe(df)
+                st.line_chart(df.set_index("Data")["Peso"])
