@@ -46,18 +46,6 @@ def criar_tabelas():
 # LOTES
 # -----------------------
 
-def adicionar_lote(nome, descricao, data):
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    INSERT INTO lotes (nome, descricao, data)
-    VALUES (?, ?, ?)
-    """, (nome, descricao, data))
-
-    conn.commit()
-    conn.close()
-
 def listar_lotes():
     conn = conectar()
     cursor = conn.cursor()
@@ -67,6 +55,21 @@ def listar_lotes():
 
     conn.close()
     return dados
+
+def adicionar_lote(nome, descricao, data, qtd_comprada, qtd_recebida, transporte):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT INTO lotes (nome, descricao, data, qtd_comprada, qtd_recebida, transporte)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (nome, descricao, data, qtd_comprada, qtd_recebida, transporte))
+
+    conn.commit()
+    conn.close()
+# -----------------------
+# ANIMAIS
+# -----------------------
 
 # -----------------------
 # ANIMAIS
@@ -84,6 +87,7 @@ def adicionar_animal(identificacao, idade, lote_id):
     conn.commit()
     conn.close()
 
+
 def listar_animais_por_lote(lote_id):
     conn = conectar()
     cursor = conn.cursor()
@@ -97,15 +101,20 @@ def listar_animais_por_lote(lote_id):
     conn.close()
     return dados
 
-def listar_animais():
+
+# 🔥 INSERIR AQUI
+def contar_animais_no_lote(lote_id):
     conn = conectar()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM animais")
-    dados = cursor.fetchall()
+    cursor.execute("""
+    SELECT COUNT(*) FROM animais WHERE lote_id = ?
+    """, (lote_id,))
+
+    total = cursor.fetchone()[0]
 
     conn.close()
-    return dados
+    return total
 
 # -----------------------
 # PESAGENS
