@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from database import *
 
+
 import streamlit as st
 st.write("App rodando")
 
