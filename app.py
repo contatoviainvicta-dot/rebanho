@@ -1,7 +1,6 @@
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
-if menu == "Cadastrar Lote":
     st.subheader("Novo Lote")
 
     nome = st.text_input("Nome do lote")
