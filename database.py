@@ -7,13 +7,15 @@ def criar_tabelas():
     conn = conectar()
     cursor = conn.cursor()
 
-    # LOTES
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS lotes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT,
         descricao TEXT,
-        data TEXT
+        data TEXT,
+        qtd_comprada INTEGER,
+        qtd_recebida INTEGER,
+        transporte TEXT
     )
     """)
 
