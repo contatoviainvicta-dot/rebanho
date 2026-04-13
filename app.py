@@ -34,43 +34,62 @@ menu = st.sidebar.selectbox(
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
-if menu == "Cadastrar Lote":
-    st.subheader("Novo Lote")
+elif menu == "Analisar Animal":
+    st.subheader("Análise do Animal")
 
-    nome = st.text_input("Nome do lote")
-    descricao = st.text_area("Descrição")
-    data = st.date_input("Data")
+    lotes = listar_lotes()
 
-    qtd_comprada = st.number_input("Quantidade comprada", 0)
-    qtd_recebida = st.number_input("Quantidade recebida", 0)
-    transporte = st.text_input("Tipo de transporte")
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
 
-    if st.button("Salvar Lote"):
-        if not nome:
-            st.error("Informe o nome do lote")
+    else:
+        # 🔹 selecionar lote
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
 
-        elif qtd_recebida > qtd_comprada:
-            st.error("Quantidade recebida não pode ser maior que a comprada")
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
 
-        elif qtd_recebida == 0:
-            st.error("Informe a quantidade recebida")
+        # 🔹 buscar animais do lote
+        animais = listar_animais_por_lote(lote_id)
+
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
 
         else:
-            adicionar_lote(
-                nome,
-                descricao,
-                str(data),
-                qtd_comprada,
-                qtd_recebida,
-                transporte
-            )
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
-            perda = qtd_comprada - qtd_recebida
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
 
-            st.success("Lote criado com sucesso!")
+            pesagens = listar_pesagens(animal_id)
 
-            if perda > 0:
-                st.warning(f"⚠️ Perda no transporte: {perda} animais")
+            if len(pesagens) > 0:
+                df = pd.DataFrame(
+                    pesagens,
+                    columns=["ID", "Animal", "Peso", "Data"]
+                )
+
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                st.dataframe(df)
+
+                st.subheader("📈 Evolução de Peso")
+                st.line_chart(df.set_index("Data")["Peso"])
+
+                # INSIGHT
+                if len(df) > 1:
+                    ganho = df["Peso"].diff().mean()
+
+                    st.write(f"📊 Ganho médio: {ganho:.2f} kg/dia")
+
+                    if ganho < 0.3:
+                        st.warning("⚠️ Baixo ganho de peso")
+                    else:
+                        st.success("✅ Ganho adequado")
+
+            else:
+                st.info("Sem pesagens registradas")
 
 # ---------------------------
 # CADASTRAR ANIMAL
