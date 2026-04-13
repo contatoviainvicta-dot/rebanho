@@ -34,6 +34,7 @@ menu = st.sidebar.selectbox(
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
+
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
 
