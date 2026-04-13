@@ -3,7 +3,6 @@ import pandas as pd
 from database import *
 
 import streamlit as st
-
 st.write("App rodando")
 
 # Criar tabelas
