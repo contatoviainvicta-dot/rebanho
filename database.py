@@ -7,6 +7,7 @@ def criar_tabelas():
     conn = conectar()
     cursor = conn.cursor()
 
+    # LOTES
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS lotes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,16 +47,6 @@ def criar_tabelas():
 # LOTES
 # -----------------------
 
-def listar_lotes():
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM lotes")
-    dados = cursor.fetchall()
-
-    conn.close()
-    return dados
-
 def adicionar_lote(nome, descricao, data, qtd_comprada, qtd_recebida, transporte):
     conn = conectar()
     cursor = conn.cursor()
@@ -67,8 +58,20 @@ def adicionar_lote(nome, descricao, data, qtd_comprada, qtd_recebida, transporte
 
     conn.commit()
     conn.close()
-    
-    def obter_lote(lote_id):
+
+
+def listar_lotes():
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM lotes")
+    dados = cursor.fetchall()
+
+    conn.close()
+    return dados
+
+
+def obter_lote(lote_id):
     conn = conectar()
     cursor = conn.cursor()
 
@@ -80,9 +83,6 @@ def adicionar_lote(nome, descricao, data, qtd_comprada, qtd_recebida, transporte
 
     conn.close()
     return lote
-# -----------------------
-# ANIMAIS
-# -----------------------
 
 # -----------------------
 # ANIMAIS
@@ -101,6 +101,17 @@ def adicionar_animal(identificacao, idade, lote_id):
     conn.close()
 
 
+def listar_animais():
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM animais")
+    dados = cursor.fetchall()
+
+    conn.close()
+    return dados
+
+
 def listar_animais_por_lote(lote_id):
     conn = conectar()
     cursor = conn.cursor()
@@ -115,7 +126,6 @@ def listar_animais_por_lote(lote_id):
     return dados
 
 
-# 🔥 INSERIR AQUI
 def contar_animais_no_lote(lote_id):
     conn = conectar()
     cursor = conn.cursor()
@@ -144,6 +154,7 @@ def adicionar_pesagem(animal_id, peso, data):
 
     conn.commit()
     conn.close()
+
 
 def listar_pesagens(animal_id):
     conn = conectar()
