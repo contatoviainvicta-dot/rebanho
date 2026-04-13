@@ -1,6 +1,40 @@
+import streamlit as st
+import pandas as pd
+from database import (
+    criar_tabelas,
+    listar_lotes,
+    adicionar_lote,
+    obter_lote,
+    listar_animais,
+    listar_animais_por_lote,
+    adicionar_animal,
+    contar_animais_no_lote,
+    adicionar_pesagem,
+    listar_pesagens
+)
+
+# Inicializar banco
+criar_tabelas()
+
+st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
+
+st.title("🐄 Gestão de Rebanho - v3.1")
+
+menu = st.sidebar.selectbox(
+    "Menu",
+    [
+        "Cadastrar Lote",
+        "Cadastrar Animal",
+        "Registrar Pesagem",
+        "Analisar por Lote",
+        "Analisar Animal"
+    ]
+)
+
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
+if menu == "Cadastrar Lote":
     st.subheader("Novo Lote")
 
     nome = st.text_input("Nome do lote")
@@ -31,7 +65,6 @@
                 transporte
             )
             st.success("Lote criado com sucesso!")
-
 
 # ---------------------------
 # CADASTRAR ANIMAL
@@ -70,7 +103,6 @@ elif menu == "Cadastrar Animal":
                 else:
                     adicionar_animal(identificacao, idade, lote_id)
                     st.success("Animal cadastrado com sucesso!")
-
 
 # ---------------------------
 # REGISTRAR PESAGEM
@@ -112,7 +144,6 @@ elif menu == "Registrar Pesagem":
                     adicionar_pesagem(animal_id, peso, str(data))
                     st.success("Pesagem registrada!")
 
-
 # ---------------------------
 # ANÁLISE POR LOTE
 # ---------------------------
@@ -138,7 +169,6 @@ elif menu == "Analisar por Lote":
         animais = listar_animais_por_lote(lote_id)
 
         st.write(f"🐄 Total: {len(animais)}")
-
 
 # ---------------------------
 # ANÁLISE INDIVIDUAL
@@ -177,3 +207,5 @@ elif menu == "Analisar Animal":
 
                 st.dataframe(df)
                 st.line_chart(df.set_index("Data")["Peso"])
+            else:
+                st.info("Sem pesagens registradas")
