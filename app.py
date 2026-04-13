@@ -6,28 +6,61 @@ criar_tabelas()
 
 st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
 
-st.title("🐄 Gestão de Rebanho - v2.0")
+st.title("🐄 Gestão de Rebanho - v3.0")
 
 menu = st.sidebar.selectbox(
     "Menu",
-    ["Cadastrar Animal", "Registrar Pesagem", "Analisar Animal"]
+    [
+        "Cadastrar Lote",
+        "Cadastrar Animal",
+        "Registrar Pesagem",
+        "Analisar por Lote",
+        "Analisar Animal"
+    ]
 )
+
+# ---------------------------
+# CADASTRAR LOTE
+# ---------------------------
+if menu == "Cadastrar Lote":
+    st.subheader("Novo Lote")
+
+    nome = st.text_input("Nome do lote")
+    descricao = st.text_area("Descrição")
+    data = st.date_input("Data")
+
+    if st.button("Salvar Lote"):
+        if nome:
+            adicionar_lote(nome, descricao, str(data))
+            st.success("Lote criado!")
+        else:
+            st.error("Informe o nome do lote")
 
 # ---------------------------
 # CADASTRAR ANIMAL
 # ---------------------------
-if menu == "Cadastrar Animal":
+elif menu == "Cadastrar Animal":
     st.subheader("Novo Animal")
 
-    identificacao = st.text_input("Identificação")
-    idade = st.number_input("Idade (meses)", 0, 240)
+    lotes = listar_lotes()
 
-    if st.button("Salvar Animal"):
-        if identificacao:
-            adicionar_animal(identificacao, idade)
-            st.success("Animal cadastrado!")
-        else:
-            st.error("Informe a identificação")
+    if len(lotes) == 0:
+        st.warning("Cadastre um lote primeiro")
+    else:
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha = st.selectbox("Lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha]
+
+        identificacao = st.text_input("Identificação")
+        idade = st.number_input("Idade (meses)", 0, 240)
+
+        if st.button("Salvar Animal"):
+            if identificacao:
+                adicionar_animal(identificacao, idade, lote_id)
+                st.success("Animal cadastrado!")
+            else:
+                st.error("Informe a identificação")
 
 # ---------------------------
 # REGISTRAR PESAGEM
@@ -49,16 +82,40 @@ elif menu == "Registrar Pesagem":
         data = st.date_input("Data")
 
         if st.button("Salvar Pesagem"):
-            if peso > 1000:
+            if peso <= 0:
+                st.error("Informe um peso válido")
+            elif peso > 1000:
                 st.error("Peso muito alto — verificar valor")
-            elif peso == 0:
-                st.error("Informe o peso")
             else:
                 adicionar_pesagem(animal_id, peso, str(data))
                 st.success("Pesagem registrada!")
 
 # ---------------------------
-# ANÁLISE
+# ANÁLISE POR LOTE
+# ---------------------------
+elif menu == "Analisar por Lote":
+    st.subheader("Análise por Lote")
+
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+    else:
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha]
+
+        animais = listar_animais_por_lote(lote_id)
+
+        st.write(f"🐄 Total de animais: {len(animais)}")
+
+        if len(animais) > 0:
+            df_animais = pd.DataFrame(animais, columns=["ID", "Identificação", "Idade", "Lote"])
+            st.dataframe(df_animais)
+
+# ---------------------------
+# ANÁLISE INDIVIDUAL
 # ---------------------------
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
@@ -66,7 +123,7 @@ elif menu == "Analisar Animal":
     animais = listar_animais()
 
     if len(animais) == 0:
-        st.warning("Cadastre um animal primeiro")
+        st.warning("Nenhum animal cadastrado")
     else:
         dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
@@ -88,11 +145,11 @@ elif menu == "Analisar Animal":
 
             # INSIGHT
             if len(df) > 1:
-                ganho_medio = df["Peso"].diff().mean()
+                ganho = df["Peso"].diff().mean()
 
-                st.write(f"📊 Ganho médio: {ganho_medio:.2f} kg/dia")
+                st.write(f"📊 Ganho médio: {ganho:.2f} kg/dia")
 
-                if ganho_medio < 0.3:
+                if ganho < 0.3:
                     st.warning("⚠️ Baixo ganho de peso")
                 else:
                     st.success("✅ Ganho adequado")
