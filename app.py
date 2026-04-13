@@ -1,27 +1,38 @@
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
-import streamlit as st
-import pandas as pd
-from database import *
+if menu == "Cadastrar Lote":
+    st.subheader("Novo Lote")
 
-criar_tabelas()
+    nome = st.text_input("Nome do lote")
+    descricao = st.text_area("Descrição")
+    data = st.date_input("Data")
 
-st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
+    qtd_comprada = st.number_input("Quantidade comprada", 0)
+    qtd_recebida = st.number_input("Quantidade recebida", 0)
+    transporte = st.text_input("Tipo de transporte")
 
-st.title("🐄 Gestão de Rebanho - v3.1")
+    if st.button("Salvar Lote"):
+        if not nome:
+            st.error("Informe o nome do lote")
 
-# 🔥 ESSA PARTE É OBRIGATÓRIA
-menu = st.sidebar.selectbox(
-    "Menu",
-    [
-        "Cadastrar Lote",
-        "Cadastrar Animal",
-        "Registrar Pesagem",
-        "Analisar por Lote",
-        "Analisar Animal"
-    ]
-)
+        elif qtd_recebida > qtd_comprada:
+            st.error("Quantidade recebida não pode ser maior que a comprada")
+
+        elif qtd_recebida == 0:
+            st.error("Informe a quantidade recebida")
+
+        else:
+            adicionar_lote(
+                nome,
+                descricao,
+                str(data),
+                qtd_comprada,
+                qtd_recebida,
+                transporte
+            )
+            st.success("Lote criado com sucesso!")
+
 
 # ---------------------------
 # CADASTRAR ANIMAL
