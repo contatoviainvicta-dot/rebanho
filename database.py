@@ -67,6 +67,19 @@ def adicionar_lote(nome, descricao, data, qtd_comprada, qtd_recebida, transporte
 
     conn.commit()
     conn.close()
+    
+    def obter_lote(lote_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT * FROM lotes WHERE id = ?
+    """, (lote_id,))
+
+    lote = cursor.fetchone()
+
+    conn.close()
+    return lote
 # -----------------------
 # ANIMAIS
 # -----------------------
