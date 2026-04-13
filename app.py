@@ -1,12 +1,19 @@
 import streamlit as st
 import pandas as pd
-from database import *
+from database import (
+    criar_tabelas,
+    listar_lotes,
+    adicionar_lote,
+    obter_lote,
+    listar_animais,
+    listar_animais_por_lote,
+    adicionar_animal,
+    contar_animais_no_lote,
+    adicionar_pesagem,
+    listar_pesagens
+)
 
-
-import streamlit as st
-st.write("App rodando")
-
-# Criar tabelas
+# Inicializar banco
 criar_tabelas()
 
 st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
@@ -59,6 +66,7 @@ if menu == "Cadastrar Lote":
             )
 
             perda = qtd_comprada - qtd_recebida
+
             st.success("Lote criado com sucesso!")
 
             if perda > 0:
@@ -81,7 +89,6 @@ elif menu == "Cadastrar Animal":
         escolha = st.selectbox("Lote", list(dict_lotes.keys()))
         lote_id = dict_lotes[escolha]
 
-        # 🔥 buscar dados do lote
         lote = obter_lote(lote_id)
         qtd_recebida = lote[5]
 
@@ -89,7 +96,6 @@ elif menu == "Cadastrar Animal":
 
         st.info(f"🐄 Animais cadastrados: {total_animais} / {qtd_recebida}")
 
-        # BLOQUEIO DE LIMITE
         if total_animais >= qtd_recebida:
             st.error("⚠️ Limite do lote atingido")
 
@@ -100,7 +106,6 @@ elif menu == "Cadastrar Animal":
             if st.button("Salvar Animal"):
                 if not identificacao:
                     st.error("Informe a identificação")
-
                 else:
                     adicionar_animal(identificacao, idade, lote_id)
                     st.success("Animal cadastrado com sucesso!")
@@ -211,7 +216,6 @@ elif menu == "Analisar Animal":
             st.subheader("📈 Evolução de Peso")
             st.line_chart(df.set_index("Data")["Peso"])
 
-            # INSIGHT
             if len(df) > 1:
                 ganho = df["Peso"].diff().mean()
 
