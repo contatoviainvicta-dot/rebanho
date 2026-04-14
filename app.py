@@ -271,14 +271,6 @@ elif menu == "Analisar Animal":
 
                     dias = (data_final - data_inicial).days
 
-                    if dias > 0:
-                        gmd = (peso_final - peso_inicial) / dias
-
-                        st.subheader("📊 Desempenho")
-
-                        st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
-                        st.write(f"📆 Período: {dias} dias")
-                        st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
 
 # ---------------------------
 # VALIDAÇÃO CLÍNICA DO GMD
