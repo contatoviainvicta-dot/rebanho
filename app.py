@@ -182,23 +182,27 @@ elif menu == "Registrar Pesagem":
             animal_id = dict_animais[escolha_animal]
 
             peso = st.number_input("Peso (kg)", 0.0)
-            from datetime import datetime
 
             data = st.date_input("Data")
-            hora = st.selectbox("Hora",
-            [f"{h:02d}:00" for h in range(0, 24)]
+
+            hora = st.selectbox(
+                "Hora da pesagem",
+                ["06:00", "08:00", "10:00", "14:00", "16:00", "18:00"]
             )
 
-# juntar data + hora
-data_formatada = f"{data.strftime('%d/%m/%Y')} {hora}"
+            data_formatada = f"{data.strftime('%d/%m/%Y')} {hora}"
 
+            # 🔥 BOTÃO CORRETAMENTE INDENTADO
             if st.button("Salvar Pesagem"):
+
                 if peso <= 0:
                     st.error("Informe um peso válido")
+
                 elif peso > 1000:
                     st.error("Peso muito alto")
+
                 else:
-                    adicionar_pesagem(animal_id, peso, str(data))
+                    adicionar_pesagem(animal_id, peso, data_formatada)
                     st.success("Pesagem registrada!")
 
 # ---------------------------
