@@ -281,10 +281,17 @@ elif menu == "Analisar Animal":
                         st.write(f"📆 Período: {dias} dias")
                         st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
 
-                        if gmd < 0.5:
-                            st.warning("⚠️ GMD baixo — verificar manejo/nutrição")
-                        else:
-                            st.success("✅ GMD adequado")
+                        if gmd < 0:
+    st.error("🚨 Perda de peso detectada — possível doença ou manejo inadequado")
+
+elif gmd > 2:
+    st.error("🚨 GMD irreal — verificar dados (peso ou datas incorretas)")
+
+elif gmd < 0.5:
+    st.warning("⚠️ GMD baixo — possível problema nutricional ou sanitário")
+
+else:
+    st.success("✅ GMD adequado")
 
                     else:
                         st.info("Intervalo de datas insuficiente para cálculo")
