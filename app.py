@@ -218,6 +218,49 @@ elif menu == "Analisar por Lote":
         animais = listar_animais_por_lote(lote_id)
 
         st.write(f"🐄 Total: {len(animais)}")
+# ---------------------------
+# GMD MÉDIO DO LOTE
+# ---------------------------
+gmds = []
+
+for animal in animais:
+    animal_id = animal[0]
+    pesagens = listar_pesagens(animal_id)
+
+    if len(pesagens) > 1:
+        df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+        df["Data"] = pd.to_datetime(df["Data"])
+        df = df.sort_values("Data")
+
+        peso_inicial = df["Peso"].iloc[0]
+        peso_final = df["Peso"].iloc[-1]
+
+        dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+        if dias > 0:
+            gmd = (peso_final - peso_inicial) / dias
+
+            # filtro de segurança
+            if 0 <= gmd <= 2:
+                gmds.append(gmd)
+
+# RESULTADO
+if len(gmds) > 0:
+    gmd_medio = sum(gmds) / len(gmds)
+
+    st.subheader("📊 Desempenho do Lote")
+
+    st.write(f"🐄 Animais analisados: {len(gmds)}")
+    st.write(f"🚀 GMD médio: {gmd_medio:.3f} kg/dia")
+
+    # interpretação
+    if gmd_medio < 0.5:
+        st.warning("⚠️ Lote com baixo desempenho")
+    else:
+        st.success("✅ Lote com bom desempenho")
+
+else:
+    st.info("Dados insuficientes para cálculo do GMD do lote")
 
 # ---------------------------
 # ANÁLISE INDIVIDUAL
