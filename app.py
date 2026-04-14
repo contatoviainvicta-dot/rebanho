@@ -284,17 +284,27 @@ elif menu == "Analisar Animal":
 # ---------------------------
 # VALIDAÇÃO CLÍNICA DO GMD
 # ---------------------------
+if dias > 0:
+    gmd = (peso_final - peso_inicial) / dias
 
-if gmd < 0:
-    st.error("🚨 Perda de peso detectada — possível doença ou manejo inadequado")
+    st.subheader("📊 Desempenho")
 
-elif gmd > 2:
-    st.error("🚨 GMD irreal — verificar dados (peso ou datas incorretas)")
+    st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
+    st.write(f"📆 Período: {dias} dias")
+    st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
 
-elif gmd < 0.5:
-    st.warning("⚠️ GMD baixo — possível problema nutricional ou sanitário")
+    # 🔥 VALIDAÇÃO TEM QUE FICAR AQUI DENTRO
+    if gmd < 0:
+        st.error("🚨 Perda de peso detectada — possível doença ou manejo inadequado")
+
+    elif gmd > 2:
+        st.error("🚨 GMD irreal — verificar dados (peso ou datas incorretas)")
+
+    elif gmd < 0.5:
+        st.warning("⚠️ GMD baixo — possível problema nutricional ou sanitário")
+
+    else:
+        st.success("✅ GMD adequado")
 
 else:
-    st.success("✅ GMD adequado")
-
-                        
+    st.info("Intervalo de datas insuficiente para cálculo")
