@@ -33,7 +33,8 @@ menu = st.sidebar.selectbox(
 
 # ---------------------------
 # CADASTRAR LOTE
-# ---------------------------
+# ----------------------
+
 if menu == "Cadastrar Lote":
     st.subheader("Novo Lote")
 
@@ -45,7 +46,33 @@ if menu == "Cadastrar Lote":
     qtd_recebida = st.number_input("Quantidade recebida", 0)
     transporte = st.text_input("Tipo de transporte")
 
+    # ---------------------------
+    # NOVOS CAMPOS (PRIORIDADE 1)
+    # ---------------------------
+    preco_por_animal = st.number_input("Preço por animal (R$)", 0.0)
+
+    raca = st.selectbox(
+        "Raça",
+        ["Nelore", "Angus", "Cruzamento", "Outros"]
+    )
+
+    categoria = st.selectbox(
+        "Categoria",
+        ["Bezerro", "Recria", "Engorda"]
+    )
+
+    # ---------------------------
+    # CÁLCULO AUTOMÁTICO
+    # ---------------------------
+    custo_total = preco_por_animal * qtd_comprada
+
+    st.info(f"💰 Custo total estimado: R$ {custo_total:.2f}")
+
+    # ---------------------------
+    # BOTÃO
+    # ---------------------------
     if st.button("Salvar Lote"):
+
         if not nome:
             st.error("Informe o nome do lote")
 
@@ -64,7 +91,14 @@ if menu == "Cadastrar Lote":
                 qtd_recebida,
                 transporte
             )
+
             st.success("Lote criado com sucesso!")
+
+            # 🔥 MOSTRAR RESUMO (NOVO)
+            st.write("### 📊 Resumo do Lote")
+            st.write(f"🐄 Raça: {raca}")
+            st.write(f"📦 Categoria: {categoria}")
+            st.write(f"💰 Custo total: R$ {custo_total:.2f}")
 
 # ---------------------------
 # CADASTRAR ANIMAL
