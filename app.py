@@ -222,7 +222,6 @@ elif menu == "Analisar por Lote":
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
-
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
 
