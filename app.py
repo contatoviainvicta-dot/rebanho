@@ -245,8 +245,17 @@ elif menu == "Analisar por Lote":
 
             if len(pesagens) > 1:
                 df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                df["Data"] = pd.to_datetime(df["Data"])
+              # 🔥 TRATAMENTO ROBUSTO DE DATA
+                df["Data"] = pd.to_datetime(df["Data"], format="%d/%m/%Y %H:%M", errors="coerce")
+                df["Data"] = df["Data"].fillna(pd.to_datetime(df["Data"], errors="coerce"))
+                df = df.dropna(subset=["Data"])
                 df = df.sort_values("Data")
+                # 🔥 TRATAMENTO ROBUSTO DE DATA
+                df["Data"] = pd.to_datetime(df["Data"], format="%d/%m/%Y %H:%M", errors="coerce")
+                df["Data"] = df["Data"].fillna(pd.to_datetime(df["Data"], errors="coerce"))
+                df = df.dropna(subset=["Data"])
+                df = df.sort_values("Data")
+
 
                 peso_inicial = df["Peso"].iloc[0]
                 peso_final = df["Peso"].iloc[-1]
