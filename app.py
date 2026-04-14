@@ -78,7 +78,7 @@ tipo_dieta = st.selectbox(
     # ---------------------------
     # CÁLCULO AUTOMÁTICO
     # ---------------------------
-    custo_total = preco_por_animal * qtd_comprada
+custo_total = preco_por_animal * qtd_comprada
 
     st.info(f"💰 Custo total estimado: R$ {custo_total:.2f}")
 
