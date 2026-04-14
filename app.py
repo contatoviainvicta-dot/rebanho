@@ -249,7 +249,6 @@ elif menu == "Analisar Animal":
 
             pesagens = listar_pesagens(animal_id)
 
-            # 🔥 TUDO A PARTIR DAQUI PRECISA ESTAR INDENTADO
             if len(pesagens) > 0:
                 df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
                 df["Data"] = pd.to_datetime(df["Data"])
@@ -259,7 +258,7 @@ elif menu == "Analisar Animal":
                 st.line_chart(df.set_index("Data")["Peso"])
 
                 # ---------------------------
-                # CÁLCULO GMD
+                # CÁLCULO + VALIDAÇÃO GMD
                 # ---------------------------
                 if len(df) > 1:
 
@@ -271,31 +270,30 @@ elif menu == "Analisar Animal":
 
                     dias = (data_final - data_inicial).days
 
+                    if dias > 0:
+                        gmd = (peso_final - peso_inicial) / dias
 
-# ---------------------------
-# VALIDAÇÃO CLÍNICA DO GMD
-# ---------------------------
-if dias > 0:
-    gmd = (peso_final - peso_inicial) / dias
+                        st.subheader("📊 Desempenho")
 
-    st.subheader("📊 Desempenho")
+                        st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
+                        st.write(f"📆 Período: {dias} dias")
+                        st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
 
-    st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
-    st.write(f"📆 Período: {dias} dias")
-    st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
+                        # ✅ VALIDAÇÃO
+                        if gmd < 0:
+                            st.error("🚨 Perda de peso detectada — possível doença ou manejo inadequado")
 
-    # 🔥 VALIDAÇÃO TEM QUE FICAR AQUI DENTRO
-    if gmd < 0:
-        st.error("🚨 Perda de peso detectada — possível doença ou manejo inadequado")
+                        elif gmd > 2:
+                            st.error("🚨 GMD irreal — verificar dados (peso ou datas incorretas)")
 
-    elif gmd > 2:
-        st.error("🚨 GMD irreal — verificar dados (peso ou datas incorretas)")
+                        elif gmd < 0.5:
+                            st.warning("⚠️ GMD baixo — possível problema nutricional ou sanitário")
 
-    elif gmd < 0.5:
-        st.warning("⚠️ GMD baixo — possível problema nutricional ou sanitário")
+                        else:
+                            st.success("✅ GMD adequado")
 
-    else:
-        st.success("✅ GMD adequado")
+                    else:
+                        st.info("Intervalo de datas insuficiente para cálculo")
 
-else:
-    st.info("Intervalo de datas insuficiente para cálculo")
+            else:
+                st.info("Sem pesagens registradas")
