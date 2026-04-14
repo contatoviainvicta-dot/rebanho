@@ -85,7 +85,7 @@ st.info(f"💰 Custo total estimado: R$ {custo_total:.2f}")
     # ---------------------------
     # BOTÃO
     # ---------------------------
-    if st.button("Salvar Lote"):
+if st.button("Salvar Lote"):
 if st.button("Salvar Lote"):
 
     if not nome:
