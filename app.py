@@ -222,6 +222,7 @@ elif menu == "Analisar por Lote":
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
+
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
 
@@ -248,44 +249,45 @@ elif menu == "Analisar Animal":
             animal_id = dict_animais[escolha_animal]
 
             pesagens = listar_pesagens(animal_id)
-if len(pesagens) > 0:
-    df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-    df["Data"] = pd.to_datetime(df["Data"])
-    df = df.sort_values("Data")
 
-    st.dataframe(df)
-    st.line_chart(df.set_index("Data")["Peso"])
+            # 🔥 TUDO A PARTIR DAQUI PRECISA ESTAR INDENTADO
+            if len(pesagens) > 0:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
 
-    # ---------------------------
-    # CÁLCULO GMD
-    # ---------------------------
-    if len(df) > 1:
+                st.dataframe(df)
+                st.line_chart(df.set_index("Data")["Peso"])
 
-        peso_inicial = df["Peso"].iloc[0]
-        peso_final = df["Peso"].iloc[-1]
+                # ---------------------------
+                # CÁLCULO GMD
+                # ---------------------------
+                if len(df) > 1:
 
-        data_inicial = df["Data"].iloc[0]
-        data_final = df["Data"].iloc[-1]
+                    peso_inicial = df["Peso"].iloc[0]
+                    peso_final = df["Peso"].iloc[-1]
 
-        dias = (data_final - data_inicial).days
+                    data_inicial = df["Data"].iloc[0]
+                    data_final = df["Data"].iloc[-1]
 
-        if dias > 0:
-            gmd = (peso_final - peso_inicial) / dias
+                    dias = (data_final - data_inicial).days
 
-            st.subheader("📊 Desempenho")
+                    if dias > 0:
+                        gmd = (peso_final - peso_inicial) / dias
 
-            st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
-            st.write(f"📆 Período: {dias} dias")
-            st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
+                        st.subheader("📊 Desempenho")
 
-            if gmd < 0.5:
-                st.warning("⚠️ GMD baixo — verificar manejo/nutrição")
+                        st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
+                        st.write(f"📆 Período: {dias} dias")
+                        st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
+
+                        if gmd < 0.5:
+                            st.warning("⚠️ GMD baixo — verificar manejo/nutrição")
+                        else:
+                            st.success("✅ GMD adequado")
+
+                    else:
+                        st.info("Intervalo de datas insuficiente para cálculo")
+
             else:
-                st.success("✅ GMD adequado")
-
-        else:
-            st.info("Intervalo de datas insuficiente para cálculo")
-
-else:
-    st.info("Sem pesagens registradas")
-         
+                st.info("Sem pesagens registradas")
