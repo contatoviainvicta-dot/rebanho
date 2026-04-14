@@ -285,6 +285,6 @@ if len(df) > 1:
             st.success("✅ GMD adequado")
 
     else:
-        st.info("Intervalo de datas insuficiente para cálculo")
+    st.info("Intervalo de datas insuficiente para cálculo")
             else:
                 st.info("Sem pesagens registradas")
