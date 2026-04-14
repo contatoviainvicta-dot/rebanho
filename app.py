@@ -330,9 +330,11 @@ elif menu == "Analisar Animal":
 
             if len(pesagens) > 0:
                 df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                df["Data"] = pd.to_datetime(df["Data"])
+                # 🔥 TRATAMENTO ROBUSTO DE DATA
+                df["Data"] = pd.to_datetime(df["Data"], format="%d/%m/%Y %H:%M", errors="coerce")
+                df["Data"] = df["Data"].fillna(pd.to_datetime(df["Data"], errors="coerce"))
                 df = df.sort_values("Data")
-
+                df = df.dropna(subset=["Data"])
                 st.dataframe(df)
                 st.line_chart(df.set_index("Data")["Peso"])
 
