@@ -196,7 +196,6 @@ elif menu == "Registrar Pesagem":
 # ---------------------------
 # ANÁLISE POR LOTE
 # ---------------------------
-
 elif menu == "Analisar por Lote":
     st.subheader("Análise por Lote")
 
@@ -221,12 +220,15 @@ elif menu == "Analisar por Lote":
         st.write(f"🐄 Total: {len(animais)}")
 
         # ---------------------------
-        # GMD MÉDIO DO LOTE
+        # GMD MÉDIO + RANKING
         # ---------------------------
         gmds = []
+        ranking = []
 
         for animal in animais:
             animal_id = animal[0]
+            nome_animal = animal[1]
+
             pesagens = listar_pesagens(animal_id)
 
             if len(pesagens) > 1:
@@ -244,58 +246,15 @@ elif menu == "Analisar por Lote":
 
                     if 0 <= gmd <= 2:
                         gmds.append(gmd)
-   # ---------------------------
-# RANKING DE ANIMAIS
-# ---------------------------
-ranking = []
+                        ranking.append((nome_animal, gmd))
 
-for animal in animais:
-    animal_id = animal[0]
-    nome_animal = animal[1]
-
-    pesagens = listar_pesagens(animal_id)
-
-    if len(pesagens) > 1:
-        df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-        df["Data"] = pd.to_datetime(df["Data"])
-        df = df.sort_values("Data")
-
-        peso_inicial = df["Peso"].iloc[0]
-        peso_final = df["Peso"].iloc[-1]
-
-        dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
-
-        if dias > 0:
-            gmd = (peso_final - peso_inicial) / dias
-
-            if 0 <= gmd <= 2:
-                ranking.append((nome_animal, gmd))
-
-# ordenar (maior GMD primeiro)
-ranking.sort(key=lambda x: x[1], reverse=True)
-
-# EXIBIR
-if len(ranking) > 0:
-    st.subheader("🏆 Ranking de Desempenho")
-
-    for i, (nome, gmd) in enumerate(ranking, start=1):
-        st.write(f"{i}º - {nome} → {gmd:.3f} kg/dia")
-
-    # destaque extremos
-    melhor = ranking[0]
-    pior = ranking[-1]
-
-    st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
-    st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
-
-else:
-    st.info("Sem dados suficientes para ranking")
-        # RESULTADO
+        # ---------------------------
+        # RESULTADO DO LOTE
+        # ---------------------------
         if len(gmds) > 0:
             gmd_medio = sum(gmds) / len(gmds)
 
             st.subheader("📊 Desempenho do Lote")
-
             st.write(f"🐄 Animais analisados: {len(gmds)}")
             st.write(f"🚀 GMD médio: {gmd_medio:.3f} kg/dia")
 
@@ -306,6 +265,27 @@ else:
 
         else:
             st.info("Dados insuficientes para cálculo do GMD do lote")
+
+        # ---------------------------
+        # RANKING
+        # ---------------------------
+        ranking.sort(key=lambda x: x[1], reverse=True)
+
+        if len(ranking) > 0:
+            st.subheader("🏆 Ranking de Desempenho")
+
+            for i, (nome, gmd) in enumerate(ranking, start=1):
+                st.write(f"{i}º - {nome} → {gmd:.3f} kg/dia")
+
+            melhor = ranking[0]
+            pior = ranking[-1]
+
+            st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
+            st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
+
+        else:
+            st.info("Sem dados suficientes para ranking")
+
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
