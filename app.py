@@ -60,7 +60,21 @@ if menu == "Cadastrar Lote":
         "Categoria",
         ["Bezerro", "Recria", "Engorda"]
     )
+# ---------------------------
+# PRIORIDADE 2
+# ---------------------------
 
+mortalidade = st.number_input("Mortalidade no lote", 0)
+
+tipo_alimentacao = st.selectbox(
+    "Tipo de alimentação",
+    ["Pasto", "Confinamento", "Semi-confinamento"]
+)
+
+tipo_dieta = st.selectbox(
+    "Tipo de dieta",
+    ["Capim", "Ração", "Silagem", "Misto"]
+)
     # ---------------------------
     # CÁLCULO AUTOMÁTICO
     # ---------------------------
@@ -72,7 +86,30 @@ if menu == "Cadastrar Lote":
     # BOTÃO
     # ---------------------------
     if st.button("Salvar Lote"):
+if st.button("Salvar Lote"):
 
+    if not nome:
+        st.error("Informe o nome do lote")
+
+    elif qtd_recebida > qtd_comprada:
+        st.error("Quantidade recebida não pode ser maior que a comprada")
+
+    elif qtd_recebida == 0:
+        st.error("Informe a quantidade recebida")
+
+    else:
+        adicionar_lote(...)
+
+        st.success("Lote criado com sucesso!")
+
+        # 🔥 COLE AQUI 👇
+        st.write("### 📊 Resumo do Lote")
+        st.write(f"🐄 Raça: {raca}")
+        st.write(f"📦 Categoria: {categoria}")
+        st.write(f"💰 Custo total: R$ {custo_total:.2f}")
+        st.write(f"💀 Mortalidade: {mortalidade}")
+        st.write(f"🌾 Alimentação: {tipo_alimentacao}")
+        st.write(f"🥣 Dieta: {tipo_dieta}")
         if not nome:
             st.error("Informe o nome do lote")
 
