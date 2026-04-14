@@ -34,7 +34,6 @@ menu = st.sidebar.selectbox(
 # ---------------------------
 # CADASTRAR LOTE
 # ----------------------
-
 if menu == "Cadastrar Lote":
     st.subheader("Novo Lote")
 
@@ -47,7 +46,7 @@ if menu == "Cadastrar Lote":
     transporte = st.text_input("Tipo de transporte")
 
     # ---------------------------
-    # NOVOS CAMPOS (PRIORIDADE 1)
+    # PRIORIDADE 1
     # ---------------------------
     preco_por_animal = st.number_input("Preço por animal (R$)", 0.0)
 
@@ -60,55 +59,33 @@ if menu == "Cadastrar Lote":
         "Categoria",
         ["Bezerro", "Recria", "Engorda"]
     )
-# ---------------------------
-# PRIORIDADE 2
-# ---------------------------
 
-mortalidade = st.number_input("Mortalidade no lote", 0)
-
-tipo_alimentacao = st.selectbox(
-    "Tipo de alimentação",
-    ["Pasto", "Confinamento", "Semi-confinamento"]
-)
-
-tipo_dieta = st.selectbox(
-    "Tipo de dieta",
-    ["Capim", "Ração", "Silagem", "Misto"]
-)
     # ---------------------------
-    # CÁLCULO AUTOMÁTICO
+    # PRIORIDADE 2
     # ---------------------------
-custo_total = preco_por_animal * qtd_comprada
+    mortalidade = st.number_input("Mortalidade no lote", 0)
 
-st.info(f"💰 Custo total estimado: R$ {custo_total:.2f}")
+    tipo_alimentacao = st.selectbox(
+        "Tipo de alimentação",
+        ["Pasto", "Confinamento", "Semi-confinamento"]
+    )
+
+    tipo_dieta = st.selectbox(
+        "Tipo de dieta",
+        ["Capim", "Ração", "Silagem", "Misto"]
+    )
+
+    # ---------------------------
+    # CÁLCULO
+    # ---------------------------
+    custo_total = preco_por_animal * qtd_comprada
+    st.info(f"💰 Custo total estimado: R$ {custo_total:.2f}")
 
     # ---------------------------
     # BOTÃO
     # ---------------------------
-if st.button("Salvar Lote"):
+    if st.button("Salvar Lote"):
 
-    if not nome:
-        st.error("Informe o nome do lote")
-
-    elif qtd_recebida > qtd_comprada:
-        st.error("Quantidade recebida não pode ser maior que a comprada")
-
-    elif qtd_recebida == 0:
-        st.error("Informe a quantidade recebida")
-
-    else:
-        adicionar_lote(...)
-
-        st.success("Lote criado com sucesso!")
-
-        # 🔥 COLE AQUI 👇
-        st.write("### 📊 Resumo do Lote")
-        st.write(f"🐄 Raça: {raca}")
-        st.write(f"📦 Categoria: {categoria}")
-        st.write(f"💰 Custo total: R$ {custo_total:.2f}")
-        st.write(f"💀 Mortalidade: {mortalidade}")
-        st.write(f"🌾 Alimentação: {tipo_alimentacao}")
-        st.write(f"🥣 Dieta: {tipo_dieta}")
         if not nome:
             st.error("Informe o nome do lote")
 
@@ -130,12 +107,14 @@ if st.button("Salvar Lote"):
 
             st.success("Lote criado com sucesso!")
 
-            # 🔥 MOSTRAR RESUMO (NOVO)
+            # RESUMO
             st.write("### 📊 Resumo do Lote")
             st.write(f"🐄 Raça: {raca}")
             st.write(f"📦 Categoria: {categoria}")
             st.write(f"💰 Custo total: R$ {custo_total:.2f}")
-
+            st.write(f"💀 Mortalidade: {mortalidade}")
+            st.write(f"🌾 Alimentação: {tipo_alimentacao}")
+            st.write(f"🥣 Dieta: {tipo_dieta}")
 # ---------------------------
 # CADASTRAR ANIMAL
 # ---------------------------
