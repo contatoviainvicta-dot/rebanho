@@ -333,7 +333,6 @@ if len(atencao) > 0:
 
 if len(criticos) == 0 and len(atencao) == 0:
     st.success("🟢 Todos os animais com bom desempenho")
-
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
