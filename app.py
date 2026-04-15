@@ -27,7 +27,7 @@ menu = st.sidebar.selectbox(
         "Cadastrar Animal",
         "Registrar Pesagem",
         "Analisar por Lote",
-        "Analisar Animal"
+        "Analisar Animal",
         "Comparar Lotes"
     ]
 )
