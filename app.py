@@ -155,58 +155,10 @@ elif menu == "Cadastrar Animal":
 
 # ---------------------------
 # REGISTRAR PESAGEM
-# ---------------------------
-elif menu == "Analisar por Lote":
-    st.subheader("Análise por Lote")
+# ----
 
-    lotes = listar_lotes()
 
-    if len(lotes) == 0:
-        st.warning("Nenhum lote cadastrado")
 
-    else:
-        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
-
-        escolha = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
-        lote_id = dict_lotes[escolha]
-
-        lote = obter_lote(lote_id)
-
-        st.write(f"📦 Comprados: {lote[4]}")
-        st.write(f"📥 Recebidos: {lote[5]}")
-
-        animais = listar_animais_por_lote(lote_id)
-
-        st.write(f"🐄 Total: {len(animais)}")
-
-        # ---------------------------
-        # GMD MÉDIO DO LOTE
-        # ---------------------------
-        gmds = []
-
-        for animal in animais:
-            animal_id = animal[0]
-            pesagens = listar_pesagens(animal_id)
-
-            if len(pesagens) > 1:
-                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                df["Data"] = pd.to_datetime(df["Data"])
-                df = df.sort_values("Data")
-
-                peso_inicial = df["Peso"].iloc[0]
-                peso_final = df["Peso"].iloc[-1]
-
-                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
-
-                if dias > 0:
-                    gmd = (peso_final - peso_inicial) / dias
-
-                    if 0 <= gmd <= 2:
-                        gmds.append(gmd)
-
-        # ---------------------------
-        # RESULTADO DO LOTE
-        # ---------------------------
         if len(gmds) > 0:
             gmd_medio = sum(gmds) / len(gmds)
 
@@ -310,7 +262,7 @@ if len(ranking) > 0:
                 st.success("🟢 Todos os animais com bom desempenho")
 
         else:
-            st.info("Sem dados suficientes para ranking")
+
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
