@@ -243,6 +243,25 @@ elif menu == "Analisar por Lote":
 
                     if 0 <= gmd <= 2:
                         gmds.append(gmd)
+
+        # ---------------------------
+        # RESULTADO DO LOTE
+        # ---------------------------
+        if len(gmds) > 0:
+            gmd_medio = sum(gmds) / len(gmds)
+
+            st.subheader("📊 Desempenho do Lote")
+            st.write(f"🐄 Animais analisados: {len(gmds)}")
+            st.write(f"🚀 GMD médio: {gmd_medio:.3f} kg/dia")
+
+            if gmd_medio < 0.5:
+                st.warning("⚠️ Lote com baixo desempenho")
+            else:
+                st.success("✅ Lote com bom desempenho")
+
+        else:
+            st.info("Dados insuficientes para cálculo do GMD do lote")
+
         # ---------------------------
         # RANKING DE ANIMAIS
         # ---------------------------
@@ -267,15 +286,14 @@ elif menu == "Analisar por Lote":
                 if dias > 0:
                     gmd = (peso_final - peso_inicial) / dias
 
-                    # filtro de qualidade
                     if 0 <= gmd <= 2:
                         ranking.append((nome_animal, gmd))
 
         # ordenar ranking
-                     ranking.sort(key=lambda x: x[1], reverse=True)
+        ranking.sort(key=lambda x: x[1], reverse=True)
 
         # EXIBIÇÃO
-                      if len(ranking) > 0:   
+        if len(ranking) > 0:
             st.subheader("🏆 Ranking de Desempenho")
 
             for i, (nome, gmd) in enumerate(ranking, start=1):
@@ -289,21 +307,7 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking")
-        # RESULTADO
-        if len(gmds) > 0:
-            gmd_medio = sum(gmds) / len(gmds)
 
-            st.subheader("📊 Desempenho do Lote")
-            st.write(f"🐄 Animais analisados: {len(gmds)}")
-            st.write(f"🚀 GMD médio: {gmd_medio:.3f} kg/dia")
-
-            if gmd_medio < 0.5:
-                st.warning("⚠️ Lote com baixo desempenho")
-            else:
-                st.success("✅ Lote com bom desempenho")
-
-        else:
-            st.info("Dados insuficientes para cálculo do GMD do lote")
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
