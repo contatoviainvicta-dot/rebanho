@@ -274,7 +274,16 @@ if len(ranking) > 0:
 
             st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
             st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
+# ---------------------------
+# GRÁFICO: GMD POR ANIMAL
+# ---------------------------
+if len(ranking) > 0:
+    st.subheader("📊 Comparação de GMD por Animal")
 
+    df_grafico = pd.DataFrame(ranking, columns=["Animal", "GMD"])
+    df_grafico = df_grafico.set_index("Animal")
+
+    st.bar_chart(df_grafico)
             # ALERTAS
             st.subheader("🚨 Alertas do Lote")
 
