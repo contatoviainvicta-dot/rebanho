@@ -1,5 +1,3 @@
-O código está dando erro na linha 268, depois que eu inseri em analisar lote o GMDs médio do lote
-
 import streamlit as st
 import pandas as pd
 from database import (
