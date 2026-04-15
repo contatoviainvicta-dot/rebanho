@@ -28,6 +28,7 @@ menu = st.sidebar.selectbox(
         "Registrar Pesagem",
         "Analisar por Lote",
         "Analisar Animal"
+        "Comparar Lotes"
     ]
 )
 
@@ -408,3 +409,80 @@ elif menu == "Analisar Animal":
 
             else:
                 st.info("Sem pesagens registradas")
+
+# ---------------------------
+# COMPARAÇÃO ENTRE LOTES
+# ---------------------------
+elif menu == "Comparar Lotes":
+    st.subheader("📊 Comparação entre Lotes")
+
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+
+    else:
+        dados_lotes = []
+
+        for lote in lotes:
+            lote_id = lote[0]
+            nome_lote = lote[1]
+
+            animais = listar_animais_por_lote(lote_id)
+
+            gmds = []
+
+            for animal in animais:
+                animal_id = animal[0]
+                pesagens = listar_pesagens(animal_id)
+
+                if len(pesagens) > 1:
+                    df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                    df["Data"] = pd.to_datetime(df["Data"])
+                    df = df.sort_values("Data")
+
+                    peso_inicial = df["Peso"].iloc[0]
+                    peso_final = df["Peso"].iloc[-1]
+
+                    dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                    if dias > 0:
+                        gmd = (peso_final - peso_inicial) / dias
+
+                        if 0 <= gmd <= 2:
+                            gmds.append(gmd)
+
+            if len(gmds) > 0:
+                gmd_medio = sum(gmds) / len(gmds)
+                dados_lotes.append((nome_lote, gmd_medio))
+
+        # ---------------------------
+        # RESULTADO
+        # ---------------------------
+        if len(dados_lotes) > 0:
+
+            df_lotes = pd.DataFrame(dados_lotes, columns=["Lote", "GMD"])
+            df_lotes = df_lotes.set_index("Lote")
+
+            # 📊 GRÁFICO
+            st.subheader("📊 GMD médio por lote")
+            st.bar_chart(df_lotes)
+
+            # 🏆 INTERPRETAÇÃO
+            melhor = df_lotes["GMD"].idxmax()
+            pior = df_lotes["GMD"].idxmin()
+
+            st.success(f"🥇 Melhor lote: {melhor}")
+            st.warning(f"⚠️ Pior lote: {pior}")
+
+            # 🚨 ALERTAS
+            st.subheader("🚨 Alertas")
+
+            for lote, gmd in dados_lotes:
+                if gmd < 0.5:
+                    st.error(f"🔴 {lote} com baixo desempenho ({gmd:.3f})")
+                elif gmd < 0.7:
+                    st.warning(f"🟡 {lote} em atenção ({gmd:.3f})")
+
+        else:
+            st.info("Sem dados suficientes para comparação entre lotes")
