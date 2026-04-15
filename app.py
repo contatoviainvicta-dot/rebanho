@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from datetime import datetime
 from database import (
     criar_tabelas,
     listar_lotes,
@@ -18,7 +19,7 @@ criar_tabelas()
 
 st.set_page_config(page_title="Gestão de Rebanho", layout="centered")
 
-st.title("🐄 Gestão de Rebanho - v3.1")
+st.title("🐄 Gestão de Rebanho - v4.0")
 
 menu = st.sidebar.selectbox(
     "Menu",
@@ -33,7 +34,7 @@ menu = st.sidebar.selectbox(
 
 # ---------------------------
 # CADASTRAR LOTE
-# ----------------------
+# ---------------------------
 if menu == "Cadastrar Lote":
     st.subheader("Novo Lote")
 
@@ -45,24 +46,11 @@ if menu == "Cadastrar Lote":
     qtd_recebida = st.number_input("Quantidade recebida", 0)
     transporte = st.text_input("Tipo de transporte")
 
-    # ---------------------------
-    # PRIORIDADE 1
-    # ---------------------------
     preco_por_animal = st.number_input("Preço por animal (R$)", 0.0)
 
-    raca = st.selectbox(
-        "Raça",
-        ["Nelore", "Angus", "Cruzamento", "Outros"]
-    )
+    raca = st.selectbox("Raça", ["Nelore", "Angus", "Cruzamento", "Outros"])
+    categoria = st.selectbox("Categoria", ["Bezerro", "Recria", "Engorda"])
 
-    categoria = st.selectbox(
-        "Categoria",
-        ["Bezerro", "Recria", "Engorda"]
-    )
-
-    # ---------------------------
-    # PRIORIDADE 2
-    # ---------------------------
     mortalidade = st.number_input("Mortalidade no lote", 0)
 
     tipo_alimentacao = st.selectbox(
@@ -75,15 +63,9 @@ if menu == "Cadastrar Lote":
         ["Capim", "Ração", "Silagem", "Misto"]
     )
 
-    # ---------------------------
-    # CÁLCULO
-    # ---------------------------
     custo_total = preco_por_animal * qtd_comprada
     st.info(f"💰 Custo total estimado: R$ {custo_total:.2f}")
 
-    # ---------------------------
-    # BOTÃO
-    # ---------------------------
     if st.button("Salvar Lote"):
 
         if not nome:
@@ -96,10 +78,13 @@ if menu == "Cadastrar Lote":
             st.error("Informe a quantidade recebida")
 
         else:
+            # 🔥 salvar em ISO
+            data_iso = data.strftime("%Y-%m-%d")
+
             adicionar_lote(
                 nome,
                 descricao,
-                str(data),
+                data_iso,
                 qtd_comprada,
                 qtd_recebida,
                 transporte
@@ -107,14 +92,6 @@ if menu == "Cadastrar Lote":
 
             st.success("Lote criado com sucesso!")
 
-            # RESUMO
-            st.write("### 📊 Resumo do Lote")
-            st.write(f"🐄 Raça: {raca}")
-            st.write(f"📦 Categoria: {categoria}")
-            st.write(f"💰 Custo total: R$ {custo_total:.2f}")
-            st.write(f"💀 Mortalidade: {mortalidade}")
-            st.write(f"🌾 Alimentação: {tipo_alimentacao}")
-            st.write(f"🥣 Dieta: {tipo_dieta}")
 # ---------------------------
 # CADASTRAR ANIMAL
 # ---------------------------
@@ -184,15 +161,12 @@ elif menu == "Registrar Pesagem":
             peso = st.number_input("Peso (kg)", 0.0)
 
             data = st.date_input("Data")
+            hora = st.selectbox("Hora", ["06:00", "08:00", "10:00", "14:00", "16:00", "18:00"])
 
-            hora = st.selectbox(
-                "Hora da pesagem",
-                ["06:00", "08:00", "10:00", "14:00", "16:00", "18:00"]
-            )
+            # 🔥 ISO CORRETO
+            data_hora = datetime.strptime(f"{data} {hora}", "%Y-%m-%d %H:%M")
+            data_iso = data_hora.strftime("%Y-%m-%d %H:%M")
 
-            data_formatada = f"{data.strftime('%d/%m/%Y')} {hora}"
-
-            # 🔥 BOTÃO CORRETAMENTE INDENTADO
             if st.button("Salvar Pesagem"):
 
                 if peso <= 0:
@@ -202,7 +176,7 @@ elif menu == "Registrar Pesagem":
                     st.error("Peso muito alto")
 
                 else:
-                    adicionar_pesagem(animal_id, peso, data_formatada)
+                    adicionar_pesagem(animal_id, peso, data_iso)
                     st.success("Pesagem registrada!")
 
 # ---------------------------
@@ -222,85 +196,40 @@ elif menu == "Analisar por Lote":
         escolha = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
         lote_id = dict_lotes[escolha]
 
-        lote = obter_lote(lote_id)
-
-        st.write(f"📦 Comprados: {lote[4]}")
-        st.write(f"📥 Recebidos: {lote[5]}")
-
         animais = listar_animais_por_lote(lote_id)
 
-        st.write(f"🐄 Total: {len(animais)}")
-
-        # ---------------------------
-        # GMD MÉDIO + RANKING
-        # ---------------------------
         gmds = []
         ranking = []
 
         for animal in animais:
             animal_id = animal[0]
-            nome_animal = animal[1]
+            nome = animal[1]
 
             pesagens = listar_pesagens(animal_id)
 
             if len(pesagens) > 1:
-    
-                # 🔥 TRATAMENTO ROBUSTO DE DATA
-                df["Data"] = pd.to_datetime(df["Data"], format="%d/%m/%Y %H:%M", errors="coerce")
-                df["Data"] = df["Data"].fillna(pd.to_datetime(df["Data"], errors="coerce"))
-                df = df.dropna(subset=["Data"])
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+
+                # 🔥 SIMPLES AGORA
+                df["Data"] = pd.to_datetime(df["Data"])
                 df = df.sort_values("Data")
-
-
-                peso_inicial = df["Peso"].iloc[0]
-                peso_final = df["Peso"].iloc[-1]
 
                 dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
 
                 if dias > 0:
-                    gmd = (peso_final - peso_inicial) / dias
+                    gmd = (df["Peso"].iloc[-1] - df["Peso"].iloc[0]) / dias
 
                     if 0 <= gmd <= 2:
                         gmds.append(gmd)
-                        ranking.append((nome_animal, gmd))
+                        ranking.append((nome, gmd))
 
-        # ---------------------------
-        # RESULTADO DO LOTE
-        # ---------------------------
         if len(gmds) > 0:
-            gmd_medio = sum(gmds) / len(gmds)
+            st.write(f"🚀 GMD médio: {sum(gmds)/len(gmds):.3f} kg/dia")
 
-            st.subheader("📊 Desempenho do Lote")
-            st.write(f"🐄 Animais analisados: {len(gmds)}")
-            st.write(f"🚀 GMD médio: {gmd_medio:.3f} kg/dia")
-
-            if gmd_medio < 0.5:
-                st.warning("⚠️ Lote com baixo desempenho")
-            else:
-                st.success("✅ Lote com bom desempenho")
-
-        else:
-            st.info("Dados insuficientes para cálculo do GMD do lote")
-
-        # ---------------------------
-        # RANKING
-        # ---------------------------
         ranking.sort(key=lambda x: x[1], reverse=True)
 
-        if len(ranking) > 0:
-            st.subheader("🏆 Ranking de Desempenho")
-
-            for i, (nome, gmd) in enumerate(ranking, start=1):
-                st.write(f"{i}º - {nome} → {gmd:.3f} kg/dia")
-
-            melhor = ranking[0]
-            pior = ranking[-1]
-
-            st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
-            st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
-
-        else:
-            st.info("Sem dados suficientes para ranking")
+        for i, (nome, gmd) in enumerate(ranking, start=1):
+            st.write(f"{i}º - {nome}: {gmd:.3f}")
 
 # ---------------------------
 # ANÁLISE INDIVIDUAL
@@ -316,69 +245,27 @@ elif menu == "Analisar Animal":
     else:
         dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
 
-        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        escolha_lote = st.selectbox("Lote", list(dict_lotes.keys()))
         lote_id = dict_lotes[escolha_lote]
 
         animais = listar_animais_por_lote(lote_id)
 
-        if len(animais) == 0:
-            st.warning("Nenhum animal neste lote")
+        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
-        else:
-            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+        escolha_animal = st.selectbox("Animal", list(dict_animais.keys()))
+        animal_id = dict_animais[escolha_animal]
 
-            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-            animal_id = dict_animais[escolha_animal]
+        pesagens = listar_pesagens(animal_id)
 
-            pesagens = listar_pesagens(animal_id)
+        if len(pesagens) > 0:
+            df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
 
-            if len(pesagens) > 0:
-                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                # 🔥 TRATAMENTO ROBUSTO DE DATA
-                df["Data"] = pd.to_datetime(df["Data"], format="%d/%m/%Y %H:%M", errors="coerce")
-                df["Data"] = df["Data"].fillna(pd.to_datetime(df["Data"], errors="coerce"))
-                df = df.sort_values("Data")
-                df = df.dropna(subset=["Data"])
-                st.dataframe(df)
-                st.line_chart(df.set_index("Data")["Peso"])
+            df["Data"] = pd.to_datetime(df["Data"])
+            df = df.sort_values("Data")
 
-                # ---------------------------
-                # CÁLCULO + VALIDAÇÃO GMD
-                # ---------------------------
-                if len(df) > 1:
+            # 🔥 EXIBIÇÃO BR
+            df_exibir = df.copy()
+            df_exibir["Data"] = df_exibir["Data"].dt.strftime("%d/%m/%Y %H:%M")
 
-                    peso_inicial = df["Peso"].iloc[0]
-                    peso_final = df["Peso"].iloc[-1]
-
-                    data_inicial = df["Data"].iloc[0]
-                    data_final = df["Data"].iloc[-1]
-
-                    dias = (data_final - data_inicial).days
-
-                    if dias > 0:
-                        gmd = (peso_final - peso_inicial) / dias
-
-                        st.subheader("📊 Desempenho")
-
-                        st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
-                        st.write(f"📆 Período: {dias} dias")
-                        st.write(f"🚀 GMD: {gmd:.3f} kg/dia")
-
-                        # ✅ VALIDAÇÃO
-                        if gmd < 0:
-                            st.error("🚨 Perda de peso detectada — possível doença ou manejo inadequado")
-
-                        elif gmd > 2:
-                            st.error("🚨 GMD irreal — verificar dados (peso ou datas incorretas)")
-
-                        elif gmd < 0.5:
-                            st.warning("⚠️ GMD baixo — possível problema nutricional ou sanitário")
-
-                        else:
-                            st.success("✅ GMD adequado")
-
-                    else:
-                        st.info("Intervalo de datas insuficiente para cálculo")
-
-            else:
-                st.info("Sem pesagens registradas")
+            st.dataframe(df_exibir)
+            st.line_chart(df.set_index("Data")["Peso"])
