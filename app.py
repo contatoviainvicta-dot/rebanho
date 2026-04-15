@@ -156,46 +156,6 @@ elif menu == "Cadastrar Animal":
 # ---------------------------
 # REGISTRAR PESAGEM
 # ---------------------------
-elif menu == "Registrar Pesagem":
-    st.subheader("Registrar Peso")
-
-    lotes = listar_lotes()
-
-    if len(lotes) == 0:
-        st.warning("Cadastre um lote primeiro")
-
-    else:
-        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
-
-        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
-        lote_id = dict_lotes[escolha_lote]
-
-        animais = listar_animais_por_lote(lote_id)
-
-        if len(animais) == 0:
-            st.warning("Nenhum animal neste lote")
-
-        else:
-            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
-
-            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-            animal_id = dict_animais[escolha_animal]
-
-            peso = st.number_input("Peso (kg)", 0.0)
-            data = st.date_input("Data")
-
-            if st.button("Salvar Pesagem"):
-                if peso <= 0:
-                    st.error("Informe um peso válido")
-                elif peso > 1000:
-                    st.error("Peso muito alto")
-                else:
-                    adicionar_pesagem(animal_id, peso, str(data))
-                    st.success("Pesagem registrada!")
-
-# ---------------------------
-# ANÁLISE POR LOTE
-# ---------------------------
 elif menu == "Analisar por Lote":
     st.subheader("Análise por Lote")
 
@@ -289,10 +249,11 @@ elif menu == "Analisar por Lote":
                     if 0 <= gmd <= 2:
                         ranking.append((nome_animal, gmd))
 
-        # ordenar ranking
         ranking.sort(key=lambda x: x[1], reverse=True)
 
-        # EXIBIÇÃO
+        # ---------------------------
+        # EXIBIÇÃO DO RANKING + ALERTAS
+        # ---------------------------
         if len(ranking) > 0:
             st.subheader("🏆 Ranking de Desempenho")
 
@@ -305,34 +266,33 @@ elif menu == "Analisar por Lote":
             st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
             st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
 
+            # ALERTAS
+            st.subheader("🚨 Alertas do Lote")
+
+            criticos = []
+            atencao = []
+
+            for nome, gmd in ranking:
+                if gmd < 0.5:
+                    criticos.append((nome, gmd))
+                elif gmd < 0.7:
+                    atencao.append((nome, gmd))
+
+            if len(criticos) > 0:
+                st.error("🔴 Animais com baixo desempenho")
+                for nome, gmd in criticos:
+                    st.write(f"{nome} → {gmd:.3f} kg/dia")
+
+            if len(atencao) > 0:
+                st.warning("🟡 Animais em atenção")
+                for nome, gmd in atencao:
+                    st.write(f"{nome} → {gmd:.3f} kg/dia")
+
+            if len(criticos) == 0 and len(atencao) == 0:
+                st.success("🟢 Todos os animais com bom desempenho")
+
         else:
             st.info("Sem dados suficientes para ranking")
-            # ---------------------------
-# ALERTAS INTELIGENTES
-# ---------------------------
-st.subheader("🚨 Alertas do Lote")
-
-criticos = []
-atencao = []
-
-for nome, gmd in ranking:
-    if gmd < 0.5:
-        criticos.append((nome, gmd))
-    elif gmd < 0.7:
-        atencao.append((nome, gmd))
-
-if len(criticos) > 0:
-    st.error("🔴 Animais com baixo desempenho")
-    for nome, gmd in criticos:
-        st.write(f"{nome} → {gmd:.3f} kg/dia")
-
-if len(atencao) > 0:
-    st.warning("🟡 Animais em atenção")
-    for nome, gmd in atencao:
-        st.write(f"{nome} → {gmd:.3f} kg/dia")
-
-if len(criticos) == 0 and len(atencao) == 0:
-    st.success("🟢 Todos os animais com bom desempenho")
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
