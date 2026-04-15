@@ -307,6 +307,32 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking")
+            # ---------------------------
+# ALERTAS INTELIGENTES
+# ---------------------------
+st.subheader("🚨 Alertas do Lote")
+
+criticos = []
+atencao = []
+
+for nome, gmd in ranking:
+    if gmd < 0.5:
+        criticos.append((nome, gmd))
+    elif gmd < 0.7:
+        atencao.append((nome, gmd))
+
+if len(criticos) > 0:
+    st.error("🔴 Animais com baixo desempenho")
+    for nome, gmd in criticos:
+        st.write(f"{nome} → {gmd:.3f} kg/dia")
+
+if len(atencao) > 0:
+    st.warning("🟡 Animais em atenção")
+    for nome, gmd in atencao:
+        st.write(f"{nome} → {gmd:.3f} kg/dia")
+
+if len(criticos) == 0 and len(atencao) == 0:
+    st.success("🟢 Todos os animais com bom desempenho")
 
 # ---------------------------
 # ANÁLISE INDIVIDUAL
