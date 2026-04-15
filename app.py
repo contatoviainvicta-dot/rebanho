@@ -157,8 +157,98 @@ elif menu == "Cadastrar Animal":
 # REGISTRAR PESAGEM
 # ----
 
+# ---------------------------
+# REGISTRAR PESAGEM
+# ---------------------------
+elif menu == "Registrar Pesagem":
+    st.subheader("Registrar Peso")
 
+    lotes = listar_lotes()
 
+    if len(lotes) == 0:
+        st.warning("Cadastre um lote primeiro")
+
+    else:
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
+
+        animais = listar_animais_por_lote(lote_id)
+
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
+
+        else:
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
+
+            peso = st.number_input("Peso (kg)", 0.0)
+            data = st.date_input("Data")
+
+            if st.button("Salvar Pesagem"):
+                if peso <= 0:
+                    st.error("Informe um peso válido")
+                elif peso > 1000:
+                    st.error("Peso muito alto")
+                else:
+                    adicionar_pesagem(animal_id, peso, str(data))
+                    st.success("Pesagem registrada!")
+
+# ---------------------------
+# ANÁLISE POR LOTE
+# ---------------------------
+elif menu == "Analisar por Lote":
+    st.subheader("Análise por Lote")
+
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+
+    else:
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha]
+
+        lote = obter_lote(lote_id)
+
+        st.write(f"📦 Comprados: {lote[4]}")
+        st.write(f"📥 Recebidos: {lote[5]}")
+
+        animais = listar_animais_por_lote(lote_id)
+
+        st.write(f"🐄 Total: {len(animais)}")
+
+        # ---------------------------
+        # GMD MÉDIO DO LOTE
+        # ---------------------------
+        gmds = []
+
+        for animal in animais:
+            animal_id = animal[0]
+            pesagens = listar_pesagens(animal_id)
+
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                peso_inicial = df["Peso"].iloc[0]
+                peso_final = df["Peso"].iloc[-1]
+
+                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                if dias > 0:
+                    gmd = (peso_final - peso_inicial) / dias
+
+                    if 0 <= gmd <= 2:
+                        gmds.append(gmd)
+
+        # RESULTADO
         if len(gmds) > 0:
             gmd_medio = sum(gmds) / len(gmds)
 
@@ -175,7 +265,7 @@ elif menu == "Cadastrar Animal":
             st.info("Dados insuficientes para cálculo do GMD do lote")
 
         # ---------------------------
-        # RANKING DE ANIMAIS
+        # RANKING + GRÁFICO + ALERTAS
         # ---------------------------
         ranking = []
 
@@ -202,20 +292,18 @@ elif menu == "Cadastrar Animal":
                         ranking.append((nome_animal, gmd))
 
         ranking.sort(key=lambda x: x[1], reverse=True)
-                # ---------------------------
-# GRÁFICO: GMD POR ANIMAL
-# ---------------------------
-if len(ranking) > 0:
-    st.subheader("📊 Comparação de GMD por Animal")
 
-    df_grafico = pd.DataFrame(ranking, columns=["Animal", "GMD"])
-    df_grafico = df_grafico.set_index("Animal")
-
-    st.bar_chart(df_grafico)
-        # ---------------------------
-        # EXIBIÇÃO DO RANKING + ALERTAS
-        # ---------------------------
         if len(ranking) > 0:
+
+            # GRÁFICO
+            st.subheader("📊 Comparação de GMD por Animal")
+
+            df_grafico = pd.DataFrame(ranking, columns=["Animal", "GMD"])
+            df_grafico = df_grafico.set_index("Animal")
+
+            st.bar_chart(df_grafico)
+
+            # RANKING
             st.subheader("🏆 Ranking de Desempenho")
 
             for i, (nome, gmd) in enumerate(ranking, start=1):
@@ -226,43 +314,21 @@ if len(ranking) > 0:
 
             st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
             st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
-# ---------------------------
-# GRÁFICO: GMD POR ANIMAL
-# ---------------------------
-if len(ranking) > 0:
-    st.subheader("📊 Comparação de GMD por Animal")
 
-    df_grafico = pd.DataFrame(ranking, columns=["Animal", "GMD"])
-    df_grafico = df_grafico.set_index("Animal")
-
-    st.bar_chart(df_grafico)
             # ALERTAS
             st.subheader("🚨 Alertas do Lote")
 
-            criticos = []
-            atencao = []
-
             for nome, gmd in ranking:
                 if gmd < 0.5:
-                    criticos.append((nome, gmd))
+                    st.error(f"🔴 {nome} com baixo desempenho ({gmd:.3f})")
                 elif gmd < 0.7:
-                    atencao.append((nome, gmd))
-
-            if len(criticos) > 0:
-                st.error("🔴 Animais com baixo desempenho")
-                for nome, gmd in criticos:
-                    st.write(f"{nome} → {gmd:.3f} kg/dia")
-
-            if len(atencao) > 0:
-                st.warning("🟡 Animais em atenção")
-                for nome, gmd in atencao:
-                    st.write(f"{nome} → {gmd:.3f} kg/dia")
-
-            if len(criticos) == 0 and len(atencao) == 0:
-                st.success("🟢 Todos os animais com bom desempenho")
+                    st.warning(f"🟡 {nome} em atenção ({gmd:.3f})")
 
         else:
+            st.info("Sem dados suficientes para ranking")
 
+
+        
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
