@@ -345,7 +345,7 @@ elif menu == "Analisar por Lote":
             st.info("Sem dados suficientes para ranking econômico")
 
 if len(ranking_economico) == 0:
-    st.info("Sem dados suficientes para ranking econômico")
+       st.info("Sem dados suficientes para ranking econômico")
 
 # ---------------------------
 # ANÁLISE INDIVIDUAL
