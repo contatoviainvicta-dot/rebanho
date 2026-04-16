@@ -507,7 +507,7 @@ elif menu == "Analisar por Lote":
 
             else:
                 st.error(f"🔴 {nome}: Baixo desempenho ({gmd:.3f} kg/dia)")
-                # ---------------------------
+        # ---------------------------
         # INTERPRETAÇÃO AUTOMÁTICA
         # ---------------------------
         if len(ranking_lotes) > 1:
@@ -529,6 +529,21 @@ elif menu == "Analisar por Lote":
 
             else:
                 st.success("✅ Lotes com desempenho homogêneo")
+                # ---------------------------
+        # RECOMENDAÇÕES AUTOMÁTICAS
+        # ---------------------------
+        st.subheader("🧾 Recomendações de Manejo")
+
+        for nome, gmd in ranking_lotes:
+
+            if gmd < 0.5:
+                st.error(f"🔴 {nome}: Avaliar sanidade, nutrição e manejo URGENTE")
+
+            elif gmd < 0.7:
+                st.warning(f"🟡 {nome}: Ajustar dieta e monitorar ganho")
+
+            else:
+                st.success(f"🟢 {nome}: Manter manejo atual")
         # ---------------------------
         # EXIBIÇÃO + GRÁFICO
         # ---------------------------
