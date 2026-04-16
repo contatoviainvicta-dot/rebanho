@@ -710,7 +710,7 @@ elif menu == "Ocorrencias Adversas":
 
         data = st.date_input("Data")
         tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
-        descricao = st.text_area("Descrição")l
+        descricao = st.text_area("Descrição")
         gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
 
         if st.button("Salvar Ocorrência"):
