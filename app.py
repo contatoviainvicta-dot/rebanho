@@ -276,7 +276,16 @@ elif menu == "Analisar por Lote":
                         ranking_economico.append((nome_animal, custo_por_kg))
 
         ranking_economico.sort(key=lambda x: x[1])
+        # ---------------------------
+        # GRÁFICO GMD ENTRE LOTES
+        # ---------------------------
+        if len(ranking_lotes) > 0:
 
+            df_lotes = pd.DataFrame(ranking_lotes, columns=["Lote", "GMD"])
+            df_lotes = df_lotes.set_index("Lote")
+
+            st.subheader("📊 Comparação de GMD entre Lotes")
+            st.bar_chart(df_lotes)
         # ---------------------------
         # EXIBIÇÃO
         # ---------------------------
