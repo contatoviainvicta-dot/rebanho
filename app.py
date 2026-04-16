@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
 from database import (
+    salvar_ocorrencia,
+    listar_ocorrencias_por_animal
+)
+from database import (
     criar_tabelas,
     listar_lotes,
     adicionar_lote,
