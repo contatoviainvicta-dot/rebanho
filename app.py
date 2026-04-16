@@ -304,43 +304,47 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking econômico")
-        
-# GMD MÉDIO DO LOTE
-# ---------------------------
+
+        # ---------------------------
+        # GMD MÉDIO DO LOTE
+        # ---------------------------
         gmds = []
 
         for animal in animais:
             pesagens = listar_pesagens(animal[0])
 
-        if len(pesagens) > 1:
-        df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-        df["Data"] = pd.to_datetime(df["Data"])
-        df = df.sort_values("Data")
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
 
-        peso_inicial = df["Peso"].iloc[0]
-        peso_final = df["Peso"].iloc[-1]
+                peso_inicial = df["Peso"].iloc[0]
+                peso_final = df["Peso"].iloc[-1]
 
-        dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
 
-        if dias > 0:
-            gmd = (peso_final - peso_inicial) / dias
+                if dias > 0:
+                    gmd = (peso_final - peso_inicial) / dias
 
-            if 0 <= gmd <= 2:
-                gmds.append(gmd)
+                    if 0 <= gmd <= 2:
+                        gmds.append(gmd)
 
+        # ---------------------------
+        # EXIBIÇÃO DO GMD
+        # ---------------------------
         if len(gmds) > 0:
             gmd_medio = sum(gmds) / len(gmds)
 
             st.subheader("📈 Desempenho Zootécnico")
             st.write(f"🚀 GMD médio do lote: {gmd_medio:.3f} kg/dia")
 
-        if gmd_medio < 0.5:
-        st.warning("⚠️ Lote com baixo desempenho")
-        else:
-            st.success("✅ Bom desempenho")
+            if gmd_medio < 0.5:
+                st.warning("⚠️ Lote com baixo desempenho")
+            else:
+                st.success("✅ Bom desempenho")
 
-    else:
-    st.info("Sem dados suficientes para GMD do lote")
+        else:
+            st.info("Sem dados suficientes para GMD do lote")
             
 # ---------------------------
 # ANÁLISE INDIVIDUAL
