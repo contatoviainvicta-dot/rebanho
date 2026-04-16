@@ -345,6 +345,53 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para GMD do lote")
+                # ---------------------------
+        # RANKING DE GMD POR ANIMAL
+        # ---------------------------
+        ranking_gmd = []
+
+        for animal in animais:
+            animal_id = animal[0]
+            nome_animal = animal[1]
+
+            pesagens = listar_pesagens(animal_id)
+
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                peso_inicial = df["Peso"].iloc[0]
+                peso_final = df["Peso"].iloc[-1]
+
+                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                if dias > 0:
+                    gmd = (peso_final - peso_inicial) / dias
+
+                    if 0 <= gmd <= 2:
+                        ranking_gmd.append((nome_animal, gmd))
+
+        ranking_gmd.sort(key=lambda x: x[1], reverse=True)
+
+        # ---------------------------
+        # EXIBIÇÃO
+        # ---------------------------
+        if len(ranking_gmd) > 0:
+
+            st.subheader("🏆 Ranking de GMD (Animal)")
+
+            for i, (nome, gmd) in enumerate(ranking_gmd, start=1):
+                st.write(f"{i}º - {nome} → {gmd:.3f} kg/dia")
+
+            melhor = ranking_gmd[0]
+            pior = ranking_gmd[-1]
+
+            st.success(f"🥇 Melhor: {melhor[0]} ({melhor[1]:.3f} kg/dia)")
+            st.warning(f"⚠️ Pior: {pior[0]} ({pior[1]:.3f} kg/dia)")
+
+        else:
+            st.info("Sem dados suficientes para ranking de GMD")
             
 # ---------------------------
 # ANÁLISE INDIVIDUAL
