@@ -345,7 +345,7 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para GMD do lote")
-                # ---------------------------
+        # ---------------------------
         # RANKING DE GMD POR ANIMAL
         # ---------------------------
         ranking_gmd = []
@@ -392,7 +392,7 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking de GMD")
-         # ---------------------------
+        # ---------------------------
         # RANKING DE GMD ENTRE LOTES
         # ---------------------------
         ranking_lotes = []
@@ -489,7 +489,24 @@ elif menu == "Analisar por Lote":
                 ranking_lotes.append((nome_lote, gmd_medio))
 
         ranking_lotes.sort(key=lambda x: x[1], reverse=True)
+                # ---------------------------
+        # CLASSIFICAÇÃO DOS LOTES
+        # ---------------------------
+        st.subheader("🧠 Classificação dos Lotes")
 
+        for nome, gmd in ranking_lotes:
+
+            if gmd >= 1.0:
+                st.success(f"🟢 {nome}: Excelente desempenho ({gmd:.3f} kg/dia)")
+
+            elif gmd >= 0.7:
+                st.info(f"🔵 {nome}: Bom desempenho ({gmd:.3f} kg/dia)")
+
+            elif gmd >= 0.5:
+                st.warning(f"🟡 {nome}: Desempenho moderado ({gmd:.3f} kg/dia)")
+
+            else:
+                st.error(f"🔴 {nome}: Baixo desempenho ({gmd:.3f} kg/dia)")
         # ---------------------------
         # EXIBIÇÃO + GRÁFICO
         # ---------------------------
