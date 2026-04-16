@@ -182,3 +182,13 @@ def criar_tabela_ocorrencias():
             FOREIGN KEY (animal_id) REFERENCES animais(id)
         )
     """)
+
+def listar_ocorrencias_por_animal(animal_id):
+    cursor.execute("""
+        SELECT data, tipo, descricao, gravidade
+        FROM ocorrencias
+        WHERE animal_id = ?
+        ORDER BY data DESC
+    """, (animal_id,))
+    
+    return cursor.fetchall()
