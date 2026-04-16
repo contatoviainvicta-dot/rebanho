@@ -544,6 +544,55 @@ elif menu == "Analisar por Lote":
 
             else:
                 st.success(f"🟢 {nome}: Manter manejo atual")
+                # ---------------------------
+        # SCORE DE EFICIÊNCIA DO LOTE
+        # ---------------------------
+        ranking_score = []
+
+        for lote_item in todos_lotes:
+            lote_id_temp = lote_item[0]
+            nome_lote = lote_item[1]
+
+            animais_lote = listar_animais_por_lote(lote_id_temp)
+
+            gmds = []
+            ganho_total = 0
+            dias_total = 0
+
+            for animal in animais_lote:
+                pesagens = listar_pesagens(animal[0])
+
+                if len(pesagens) > 1:
+                    df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                    df["Data"] = pd.to_datetime(df["Data"])
+                    df = df.sort_values("Data")
+
+                    peso_inicial = df["Peso"].iloc[0]
+                    peso_final = df["Peso"].iloc[-1]
+
+                    dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                    if dias > 0:
+                        ganho = peso_final - peso_inicial
+
+                        if ganho > 0:
+                            gmd = ganho / dias
+                            gmds.append(gmd)
+
+                            ganho_total += ganho
+                            dias_total += dias
+
+            if len(gmds) > 0 and ganho_total > 0:
+                gmd_medio = sum(gmds) / len(gmds)
+
+                custo_total = custo_diario * dias_total
+                custo_por_kg = custo_total / ganho_total
+
+                score = gmd_medio / custo_por_kg
+
+                ranking_score.append((nome_lote, score, gmd_medio, custo_por_kg))
+
+        ranking_score.sort(key=lambda x: x[1], reverse=True)
         # ---------------------------
         # EXIBIÇÃO + GRÁFICO
         # ---------------------------
