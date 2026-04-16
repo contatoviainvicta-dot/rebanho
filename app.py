@@ -27,7 +27,8 @@ menu = st.sidebar.selectbox(
         "Cadastrar Animal",
         "Registrar Pesagem",
         "Analisar por Lote",
-        "Analisar Animal"
+        "Analisar Animal",
+        "Ocorrencias Adversas"
     ]
 )
 
@@ -125,7 +126,60 @@ elif menu == "Cadastrar Animal":
                 else:
                     adicionar_animal(identificacao, idade, lote_id)
                     st.success("Animal cadastrado com sucesso!")
+#-–--------------------
+# Ocorrencia diver
+#-------------------
+    
+elif menu == "Ocorrências Adversas":
+    st.subheader("🚨 Registro de Ocorrências Adversas")
 
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+
+    else:
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
+
+        animais = listar_animais_por_lote(lote_id)
+
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
+
+        else:
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
+
+            # ---------------------------
+            # FORMULÁRIO
+            # ---------------------------
+            tipo = st.selectbox(
+                "Tipo de ocorrência",
+                [
+                    "Doença",
+                    "Morte",
+                    "Queda de desempenho",
+                    "Trauma",
+                    "Outro"
+                ]
+            )
+
+            descricao = st.text_area("Descrição clínica")
+            data = st.date_input("Data")
+
+            gravidade = st.selectbox(
+                "Gravidade",
+                ["Leve", "Moderada", "Grave"]
+            )
+
+            if st.button("Registrar ocorrência"):
+                # aqui vamos integrar com banco depois
+                st.success("Ocorrência registrada (temporário)")
 # ---------------------------
 # REGISTRAR PESAGEM
 # ---------------------------
