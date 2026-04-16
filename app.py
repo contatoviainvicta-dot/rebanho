@@ -235,14 +235,27 @@ elif menu == "Analisar por Lote":
             st.write(f"⚖️ Ganho total: {ganho_total:.2f} kg")
             st.write(f"💸 Custo por kg: R$ {custo_kg:.2f}")
 
-        else:
-            st.info("Sem ganho suficiente para cálculo")
-              # ---------------------------
-# RANKING ECONÔMICO (CUSTO POR KG POR ANIMAL)
-#m ---------------------------
-ranking_economico = []
+        
 
-              for animal in animais:
+    # ---------------------------
+    # ALERTAS ECONÔMICOS
+    # ---------------------------
+    st.subheader("🚨 Alertas Econômicos")
+
+    for nome, custo in ranking_economico:
+        if custo > 15:
+            st.error(f"🔴 {nome} com custo muito alto (R$ {custo:.2f}/kg)")
+        elif custo > 10:
+            st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
+                    else:
+            st.info("Sem ganho suficiente para cálculo")
+
+        # ---------------------------
+        # RANKING ECONÔMICO (CUSTO POR KG POR ANIMAL)
+        # ---------------------------
+        ranking_economico = []
+
+        for animal in animais:
             animal_id = animal[0]
             nome_animal = animal[1]
 
@@ -299,16 +312,6 @@ ranking_economico = []
 
         else:
             st.info("Sem dados suficientes para ranking econômico")
-    # ---------------------------
-    # ALERTAS ECONÔMICOS
-    # ---------------------------
-    st.subheader("🚨 Alertas Econômicos")
-
-    for nome, custo in ranking_economico:
-        if custo > 15:
-            st.error(f"🔴 {nome} com custo muito alto (R$ {custo:.2f}/kg)")
-        elif custo > 10:
-            st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
 
 else:
     st.info("Sem dados suficientes para ranking econômico")
