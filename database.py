@@ -200,3 +200,38 @@ def salvar_ocorrencia(animal_id, data, tipo, descricao, gravidade):
 
     conn.commit()
     conn.close()
+    
+def listar_ocorrencias_por_animal(animal_id):
+    import sqlite3
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT data, tipo, descricao, gravidade
+        FROM ocorrencias
+        WHERE animal_id = ?
+        ORDER BY data ASC
+    """, (animal_id,))
+
+    dados = cursor.fetchall()
+    conn.close()
+
+    return dados
+
+def listar_ocorrencias_por_lote(lote_id):
+    import sqlite3
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT o.data, o.tipo, o.descricao, o.gravidade, a.nome
+        FROM ocorrencias o
+        JOIN animais a ON o.animal_id = a.id
+        WHERE a.lote_id = ?
+        ORDER BY o.data ASC
+    """, (lote_id,))
+
+    dados = cursor.fetchall()
+    conn.close()
+
+    return dados
