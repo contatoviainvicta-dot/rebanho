@@ -240,6 +240,20 @@ elif menu == "Analisar por Lote":
     # ---------------------------
     # ALERTAS ECONÔMICOS
     # ---------------------------
+    if len(ranking_economico) > 0:
+
+    st.subheader("💰 Ranking Econômico (R$/kg)")
+
+    for i, (nome, custo) in enumerate(ranking_economico, start=1):
+        st.write(f"{i}º - {nome} → R$ {custo:.2f}/kg")
+
+    melhor = ranking_economico[0]
+    pior = ranking_economico[-1]
+
+    st.success(f"🥇 Mais eficiente: {melhor[0]} (R$ {melhor[1]:.2f}/kg)")
+    st.warning(f"⚠️ Menos eficiente: {pior[0]} (R$ {pior[1]:.2f}/kg)")
+
+    # ✅ ALERTAS (AQUI DENTRO!)
     st.subheader("🚨 Alertas Econômicos")
 
     for nome, custo in ranking_economico:
@@ -247,8 +261,10 @@ elif menu == "Analisar por Lote":
             st.error(f"🔴 {nome} com custo muito alto (R$ {custo:.2f}/kg)")
         elif custo > 10:
             st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
-        else:
-            st.info("Sem ganho suficiente para cálculo")
+
+else:
+    st.info("Sem dados suficientes para ranking econômico")
+        
 
         # ---------------------------
         # RANKING ECONÔMICO (CUSTO POR KG POR ANIMAL)
