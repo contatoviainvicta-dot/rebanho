@@ -705,49 +705,36 @@ elif menu == "Analisar Animal":
         animais = listar_animais_por_lote(lote_id)
 
         if len(animais) == 0:
-            st.warning("Nenhum animal neste lote")
+    st.warning("Nenhum animal neste lote")
 
-        else:
-            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+else:
+    dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
-            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-            animal_id = dict_animais[escolha_animal]
+    escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+    animal_id = dict_animais[escolha_animal]
 
-            pesagens = listar_pesagens(animal_id)
+    pesagens = listar_pesagens(animal_id)
 
-            if len(pesagens) > 0:
-                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                df["Data"] = pd.to_datetime(df["Data"])
-                df = df.sort_values("Data")
+    if len(pesagens) > 0:
+        df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+        df["Data"] = pd.to_datetime(df["Data"])
+        df = df.sort_values("Data")
 
-                st.dataframe(df)
-                st.line_chart(df.set_index("Data")["Peso"])
+        st.dataframe(df)
+        st.line_chart(df.set_index("Data")["Peso"])
 
-            # ✅ AGORA SIM — DENTRO DO BLOCO CORRETO
-            # ---------------------------
-            # OCORRÊNCIAS DO ANIMAL
-            # ---------------------------
-            ocorrencias = listar_ocorrencias_por_animal(animal_id)
+    # ✅ OCORRÊNCIAS SÓ AQUI DENTRO
+    ocorrencias = listar_ocorrencias_por_animal(animal_id)
 
-            st.subheader("🚨 Ocorrências do Animal")
+    st.subheader("🚨 Ocorrências do Animal")
 
-            if len(ocorrencias) > 0:
-                df_oc = pd.DataFrame(
-                    ocorrencias,
-                    columns=["Data", "Tipo", "Descrição", "Gravidade"]
-                )
+    if len(ocorrencias) > 0:
+        df_oc = pd.DataFrame(
+            ocorrencias,
+            columns=["Data", "Tipo", "Descrição", "Gravidade"]
+        )
+        st.dataframe(df_oc)
+    else:
+        st.info("Sem ocorrências")
 
-                df_oc["Data"] = pd.to_datetime(df_oc["Data"])
-
-                st.dataframe(df_oc)
-
-                for _, row in df_oc.iterrows():
-                    if row["Gravidade"] == "Alta":
-                        st.error(f"🔴 {row['Tipo']} - {row['Descrição']}")
-                    elif row["Gravidade"] == "Média":
-                        st.warning(f"🟡 {row['Tipo']} - {row['Descrição']}")
-                    else:
-                        st.info(f"🔵 {row['Tipo']} - {row['Descrição']}")
-
-            else:
-                st.success("✅ Nenhuma ocorrência registrada")
+        
