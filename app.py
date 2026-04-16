@@ -306,9 +306,9 @@ else:
         # ---------------------------
         # RANKING ECONÔMICO
         # ---------------------------
-        # RANKING ECONÔMICO
+        # RANKING ECONÔMICOl
         # ---------------------------
-        ranking_economico = []
+    ranking_economico = []
 
         for animal in animais:
             animal_id = animal[0]
