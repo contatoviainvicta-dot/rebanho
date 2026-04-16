@@ -262,8 +262,8 @@ elif menu == "Analisar por Lote":
         elif custo > 10:
             st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
 
-else:
-    st.info("Sem dados suficientes para ranking econômico")
+    else:
+        st.info("Sem dados suficientes para ranking econômico")
         
 
         # ---------------------------
