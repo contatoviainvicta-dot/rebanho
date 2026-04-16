@@ -304,6 +304,7 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking econômico")
+
         # ---------------------------
 # GMD MÉDIO DO LOTE
 # ---------------------------
