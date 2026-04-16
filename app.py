@@ -489,7 +489,7 @@ elif menu == "Analisar por Lote":
                 ranking_lotes.append((nome_lote, gmd_medio))
 
         ranking_lotes.sort(key=lambda x: x[1], reverse=True)
-                # ---------------------------
+        # ---------------------------
         # CLASSIFICAÇÃO DOS LOTES
         # ---------------------------
         st.subheader("🧠 Classificação dos Lotes")
@@ -507,6 +507,28 @@ elif menu == "Analisar por Lote":
 
             else:
                 st.error(f"🔴 {nome}: Baixo desempenho ({gmd:.3f} kg/dia)")
+                # ---------------------------
+        # INTERPRETAÇÃO AUTOMÁTICA
+        # ---------------------------
+        if len(ranking_lotes) > 1:
+
+            melhor = ranking_lotes[0]
+            pior = ranking_lotes[-1]
+
+            diferenca = melhor[1] - pior[1]
+
+            st.subheader("📊 Análise Comparativa")
+
+            st.write(f"📈 Diferença entre melhor e pior lote: {diferenca:.3f} kg/dia")
+
+            if diferenca > 0.5:
+                st.error("🚨 Alta variabilidade entre lotes → possível problema de manejo")
+
+            elif diferenca > 0.2:
+                st.warning("⚠️ Diferença moderada entre lotes")
+
+            else:
+                st.success("✅ Lotes com desempenho homogêneo")
         # ---------------------------
         # EXIBIÇÃO + GRÁFICO
         # ---------------------------
