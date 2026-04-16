@@ -247,7 +247,7 @@ elif menu == "Analisar por Lote":
             st.error(f"🔴 {nome} com custo muito alto (R$ {custo:.2f}/kg)")
         elif custo > 10:
             st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
-                    else:
+        else:
             st.info("Sem ganho suficiente para cálculo")
 
         # ---------------------------
