@@ -304,16 +304,15 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking econômico")
-
-        # ---------------------------
+        
 # GMD MÉDIO DO LOTE
 # ---------------------------
-gmds = []
+        gmds = []
 
-for animal in animais:
-    pesagens = listar_pesagens(animal[0])
+        for animal in animais:
+            pesagens = listar_pesagens(animal[0])
 
-    if len(pesagens) > 1:
+        if len(pesagens) > 1:
         df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
         df["Data"] = pd.to_datetime(df["Data"])
         df = df.sort_values("Data")
@@ -329,18 +328,18 @@ for animal in animais:
             if 0 <= gmd <= 2:
                 gmds.append(gmd)
 
-if len(gmds) > 0:
-    gmd_medio = sum(gmds) / len(gmds)
+        if len(gmds) > 0:
+            gmd_medio = sum(gmds) / len(gmds)
 
-    st.subheader("📈 Desempenho Zootécnico")
-    st.write(f"🚀 GMD médio do lote: {gmd_medio:.3f} kg/dia")
+            st.subheader("📈 Desempenho Zootécnico")
+            st.write(f"🚀 GMD médio do lote: {gmd_medio:.3f} kg/dia")
 
-    if gmd_medio < 0.5:
+        if gmd_medio < 0.5:
         st.warning("⚠️ Lote com baixo desempenho")
-    else:
-        st.success("✅ Bom desempenho")
+        else:
+            st.success("✅ Bom desempenho")
 
-else:
+    else:
     st.info("Sem dados suficientes para GMD do lote")
             
 # ---------------------------
