@@ -237,7 +237,71 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem ganho suficiente para cálculo")
+              # ---------------------------
+# RANKING ECONÔMICO (CUSTO POR KG POR ANIMAL)
+# ---------------------------
+ranking_economico = []
 
+for animal in animais:
+    animal_id = animal[0]
+    nome_animal = animal[1]
+
+    pesagens = listar_pesagens(animal_id)
+
+    if len(pesagens) > 1:
+        df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+        df["Data"] = pd.to_datetime(df["Data"])
+        df = df.sort_values("Data")
+
+        peso_inicial = df["Peso"].iloc[0]
+        peso_final = df["Peso"].iloc[-1]
+
+        data_inicial = df["Data"].iloc[0]
+        data_final = df["Data"].iloc[-1]
+
+        dias = (data_final - data_inicial).days
+
+        if dias > 0:
+            ganho = peso_final - peso_inicial
+
+            if ganho > 0:
+                custo_animal = custo_diario * dias
+                custo_por_kg_animal = custo_animal / ganho
+
+                ranking_economico.append((nome_animal, custo_por_kg_animal))
+
+# ordenar (MENOR custo = melhor)
+ranking_economico.sort(key=lambda x: x[1])
+
+# ---------------------------
+# EXIBIÇÃO
+# ---------------------------
+if len(ranking_economico) > 0:
+
+    st.subheader("💰 Ranking Econômico (R$/kg)")
+
+    for i, (nome, custo) in enumerate(ranking_economico, start=1):
+        st.write(f"{i}º - {nome} → R$ {custo:.2f}/kg")
+
+    melhor = ranking_economico[0]
+    pior = ranking_economico[-1]
+
+    st.success(f"🥇 Mais eficiente: {melhor[0]} (R$ {melhor[1]:.2f}/kg)")
+    st.warning(f"⚠️ Menos eficiente: {pior[0]} (R$ {pior[1]:.2f}/kg)")
+
+    # ---------------------------
+    # ALERTAS ECONÔMICOS
+    # ---------------------------
+    st.subheader("🚨 Alertas Econômicos")
+
+    for nome, custo in ranking_economico:
+        if custo > 15:
+            st.error(f"🔴 {nome} com custo muito alto (R$ {custo:.2f}/kg)")
+        elif custo > 10:
+            st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
+
+else:
+    st.info("Sem dados suficientes para ranking econômico")
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
