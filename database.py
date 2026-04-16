@@ -169,8 +169,11 @@ def listar_pesagens(animal_id):
     conn.close()
     return dados
 
-
 def criar_tabela_ocorrencias():
+    import sqlite3
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS ocorrencias (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -178,17 +181,22 @@ def criar_tabela_ocorrencias():
             data TEXT,
             tipo TEXT,
             descricao TEXT,
-            gravidade TEXT,
-            FOREIGN KEY (animal_id) REFERENCES animais(id)
+            gravidade TEXT
         )
     """)
 
-def listar_ocorrencias_por_animal(animal_id):
+    conn.commit()
+    conn.close()
+
+def salvar_ocorrencia(animal_id, data, tipo, descricao, gravidade):
+    import sqlite3
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
     cursor.execute("""
-        SELECT data, tipo, descricao, gravidade
-        FROM ocorrencias
-        WHERE animal_id = ?
-        ORDER BY data DESC
-    """, (animal_id,))
-    
-    return cursor.fetchall()
+        INSERT INTO ocorrencias (animal_id, data, tipo, descricao, gravidade)
+        VALUES (?, ?, ?, ?, ?)
+    """, (animal_id, data, tipo, descricao, gravidade))
+
+    conn.commit()
+    conn.close()
