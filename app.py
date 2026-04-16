@@ -392,7 +392,64 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para ranking de GMD")
-            
+         # ---------------------------
+        # RANKING DE GMD ENTRE LOTES
+        # ---------------------------
+        ranking_lotes = []
+
+        todos_lotes = listar_lotes()
+
+        for lote_item in todos_lotes:
+            lote_id_temp = lote_item[0]
+            nome_lote = lote_item[1]
+
+            animais_lote = listar_animais_por_lote(lote_id_temp)
+
+            gmds_lote = []
+
+            for animal in animais_lote:
+                pesagens = listar_pesagens(animal[0])
+
+                if len(pesagens) > 1:
+                    df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                    df["Data"] = pd.to_datetime(df["Data"])
+                    df = df.sort_values("Data")
+
+                    peso_inicial = df["Peso"].iloc[0]
+                    peso_final = df["Peso"].iloc[-1]
+
+                    dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                    if dias > 0:
+                        gmd = (peso_final - peso_inicial) / dias
+
+                        if 0 <= gmd <= 2:
+                            gmds_lote.append(gmd)
+
+            if len(gmds_lote) > 0:
+                gmd_medio_lote = sum(gmds_lote) / len(gmds_lote)
+                ranking_lotes.append((nome_lote, gmd_medio_lote))
+
+        ranking_lotes.sort(key=lambda x: x[1], reverse=True)
+
+        # ---------------------------
+        # EXIBIÇÃO
+        # ---------------------------
+        if len(ranking_lotes) > 0:
+
+            st.subheader("📊 Ranking de GMD entre Lotes")
+
+            for i, (nome, gmd) in enumerate(ranking_lotes, start=1):
+                st.write(f"{i}º - {nome} → {gmd:.3f} kg/dia")
+
+            melhor = ranking_lotes[0]
+            pior = ranking_lotes[-1]
+
+            st.success(f"🥇 Melhor lote: {melhor[0]} ({melhor[1]:.3f})")
+            st.warning(f"⚠️ Pior lote: {pior[0]} ({pior[1]:.3f})")
+
+        else:
+            st.info("Sem dados suficientes para comparação entre lotes")         
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
