@@ -168,3 +168,17 @@ def listar_pesagens(animal_id):
 
     conn.close()
     return dados
+
+
+def criar_tabela_ocorrencias():
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS ocorrencias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            animal_id INTEGER,
+            data TEXT,
+            tipo TEXT,
+            descricao TEXT,
+            gravidade TEXT,
+            FOREIGN KEY (animal_id) REFERENCES animais(id)
+        )
+    """)
