@@ -593,7 +593,7 @@ elif menu == "Analisar por Lote":
                 ranking_score.append((nome_lote, score, gmd_medio, custo_por_kg))
 
         ranking_score.sort(key=lambda x: x[1], reverse=True)
-                # ---------------------------
+        # ---------------------------
         # EXIBIÇÃO DO SCORE
         # ---------------------------
         if len(ranking_score) > 0:
