@@ -257,7 +257,7 @@ elif menu == "Analisar por Lote":
     st.subheader("🚨 Alertas Econômicos")
 
     for nome, custo in ranking_economico:
-        if custo > 15:
+        elif custo > 15:
             st.error(f"🔴 {nome} com custo muito alto (R$ {custo:.2f}/kg)")
         elif custo > 10:
             st.warning(f"🟡 {nome} com custo moderado (R$ {custo:.2f}/kg)")
