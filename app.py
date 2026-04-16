@@ -169,6 +169,7 @@ elif menu == "Registrar Pesagem":
 # ---------------------------
 # ANÁLISE POR LOTE
 # ---------------------------
+------
 elif menu == "Analisar por Lote":
     st.subheader("Análise por Lote")
 
@@ -315,6 +316,7 @@ elif menu == "Analisar por Lote":
 
 else:
     st.info("Sem dados suficientes para ranking econômico")
+
 # ---------------------------
 # ANÁLISE INDIVIDUAL
 # ---------------------------
