@@ -239,10 +239,10 @@ elif menu == "Analisar por Lote":
             st.info("Sem ganho suficiente para cálculo")
               # ---------------------------
 # RANKING ECONÔMICO (CUSTO POR KG POR ANIMAL)
-# ---------------------------
+#m ---------------------------
 ranking_economico = []
 
-        for animal in animais:
+              for animal in animais:
             animal_id = animal[0]
             nome_animal = animal[1]
 
