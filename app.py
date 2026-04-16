@@ -685,9 +685,9 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para comparação entre lotes")
-# ---------------------------
-# ANÁLISE INDIVIDUAL
-# ---------------------------
+
+# analise do animal
+# ---------
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
 
@@ -707,34 +707,36 @@ elif menu == "Analisar Animal":
         if len(animais) == 0:
             st.warning("Nenhum animal neste lote")
 
-else:
-    dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+        else:  # ✅ AGORA CORRETO (dentro do bloco)
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
-    escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-    animal_id = dict_animais[escolha_animal]
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
 
-    pesagens = listar_pesagens(animal_id)
+            pesagens = listar_pesagens(animal_id)
 
-    if len(pesagens) > 0:
-        df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-        df["Data"] = pd.to_datetime(df["Data"])
-        df = df.sort_values("Data")
+            if len(pesagens) > 0:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
 
-        st.dataframe(df)
-        st.line_chart(df.set_index("Data")["Peso"])
+                st.dataframe(df)
+                st.line_chart(df.set_index("Data")["Peso"])
+            else:
+                st.warning("Sem pesagens")
 
-    # ✅ OCORRÊNCIAS SÓ AQUI DENTRO
-    ocorrencias = listar_ocorrencias_por_animal(animal_id)
+            # ---------------------------
+            # OCORRÊNCIAS
+            # ---------------------------
+            ocorrencias = listar_ocorrencias_por_animal(animal_id)
 
-    st.subheader("🚨 Ocorrências do Animal")
+            st.subheader("🚨 Ocorrências do Animal")
 
-    if len(ocorrencias) > 0:
-        df_oc = pd.DataFrame(
-            ocorrencias,
-            columns=["Data", "Tipo", "Descrição", "Gravidade"]
-        )
-        st.dataframe(df_oc)
-    else:
-        st.info("Sem ocorrências")
-
-        
+            if len(ocorrencias) > 0:
+                df_oc = pd.DataFrame(
+                    ocorrencias,
+                    columns=["Data", "Tipo", "Descrição", "Gravidade"]
+                )
+                st.dataframe(df_oc)
+            else:
+                st.info("Sem ocorrências")
