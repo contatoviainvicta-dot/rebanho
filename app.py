@@ -723,31 +723,31 @@ elif menu == "Analisar Animal":
                 st.dataframe(df)
                 st.line_chart(df.set_index("Data")["Peso"])
 
-# ---------------------------
-# OCORRÊNCIAS DO ANIMAL
-# ---------------------------
-ocorrencias = listar_ocorrencias_por_animal(animal_id)
+            # ✅ AGORA SIM — DENTRO DO BLOCO CORRETO
+            # ---------------------------
+            # OCORRÊNCIAS DO ANIMAL
+            # ---------------------------
+            ocorrencias = listar_ocorrencias_por_animal(animal_id)
 
-st.subheader("🚨 Ocorrências do Animal")
+            st.subheader("🚨 Ocorrências do Animal")
 
-if len(ocorrencias) > 0:
-    df_oc = pd.DataFrame(
-        ocorrencias,
-        columns=["Data", "Tipo", "Descrição", "Gravidade"]
-    )
+            if len(ocorrencias) > 0:
+                df_oc = pd.DataFrame(
+                    ocorrencias,
+                    columns=["Data", "Tipo", "Descrição", "Gravidade"]
+                )
 
-    df_oc["Data"] = pd.to_datetime(df_oc["Data"])
+                df_oc["Data"] = pd.to_datetime(df_oc["Data"])
 
-    st.dataframe(df_oc)
+                st.dataframe(df_oc)
 
-    # 🔴 ALERTAS CLÍNICOS
-    for _, row in df_oc.iterrows():
-        if row["Gravidade"] == "Alta":
-            st.error(f"🔴 {row['Tipo']} - {row['Descrição']}")
-        elif row["Gravidade"] == "Média":
-            st.warning(f"🟡 {row['Tipo']} - {row['Descrição']}")
-        else:
-            st.info(f"🔵 {row['Tipo']} - {row['Descrição']}")
+                for _, row in df_oc.iterrows():
+                    if row["Gravidade"] == "Alta":
+                        st.error(f"🔴 {row['Tipo']} - {row['Descrição']}")
+                    elif row["Gravidade"] == "Média":
+                        st.warning(f"🟡 {row['Tipo']} - {row['Descrição']}")
+                    else:
+                        st.info(f"🔵 {row['Tipo']} - {row['Descrição']}")
 
-else:
-    st.success("✅ Nenhuma ocorrência registrada")
+            else:
+                st.success("✅ Nenhuma ocorrência registrada")
