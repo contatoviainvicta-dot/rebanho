@@ -690,6 +690,32 @@ elif menu == "Analisar por Lote":
 
 # analise do animal
 # ---------
+elif menu == "Ocorrencias Adversas":
+    st.subheader("🚨 Registrar Ocorrência")
+
+    animais = listar_animais()
+
+    if len(animais) == 0:
+        st.warning("Nenhum animal cadastrado")
+
+    else:
+        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+        escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+        animal_id = dict_animais[escolha]
+
+        data = st.date_input("Data")
+        tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
+        descricao = st.text_area("Descrição")l
+        gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
+
+        if st.button("Salvar Ocorrência"):
+            salvar_ocorrencia(animal_id, str(data), tipo, descricao, gravidade)
+            st.success("Ocorrência registrada com sucesso!")
+
+# ---------------------------
+# ANÁLISE INDIVIDUAL
+# ---------------------------
 elif menu == "Analisar Animal":
     st.subheader("Análise do Animal")
 
@@ -700,7 +726,6 @@ elif menu == "Analisar Animal":
 
     else:
         dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
-
         escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
         lote_id = dict_lotes[escolha_lote]
 
@@ -709,9 +734,8 @@ elif menu == "Analisar Animal":
         if len(animais) == 0:
             st.warning("Nenhum animal neste lote")
 
-        else:  # ✅ AGORA CORRETO (dentro do bloco)
+        else:
             dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
-
             escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
             animal_id = dict_animais[escolha_animal]
 
@@ -724,12 +748,8 @@ elif menu == "Analisar Animal":
 
                 st.dataframe(df)
                 st.line_chart(df.set_index("Data")["Peso"])
-            else:
-                st.warning("Sem pesagens")
 
-            # ---------------------------
-            # OCORRÊNCIAS
-            # ---------------------------
+            # 🚨 OCORRÊNCIAS (DENTRO DO BLOCO!)
             ocorrencias = listar_ocorrencias_por_animal(animal_id)
 
             st.subheader("🚨 Ocorrências do Animal")
@@ -739,6 +759,17 @@ elif menu == "Analisar Animal":
                     ocorrencias,
                     columns=["Data", "Tipo", "Descrição", "Gravidade"]
                 )
+
+                df_oc["Data"] = pd.to_datetime(df_oc["Data"])
                 st.dataframe(df_oc)
+
+                for _, row in df_oc.iterrows():
+                    if row["Gravidade"] == "Alta":
+                        st.error(f"🔴 {row['Tipo']} - {row['Descrição']}")
+                    elif row["Gravidade"] == "Média":
+                        st.warning(f"🟡 {row['Tipo']} - {row['Descrição']}")
+                    else:
+                        st.info(f"🔵 {row['Tipo']} - {row['Descrição']}")
+
             else:
-                st.info("Sem ocorrências")
+                st.success("✅ Nenhuma ocorrência registrada")
