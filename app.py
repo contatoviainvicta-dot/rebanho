@@ -28,8 +28,10 @@ menu = st.sidebar.selectbox(
         "Registrar Pesagem",
         "Analisar por Lote",
         "Analisar Animal",
-        "Ocorrencias Adversas"
+        "Ocorrências Adversas"  # 👈 EXATAMENTE IGUAL
     ]
+)
+        
 )
 
 # ---------------------------
