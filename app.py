@@ -705,7 +705,7 @@ elif menu == "Analisar Animal":
         animais = listar_animais_por_lote(lote_id)
 
         if len(animais) == 0:
-    st.warning("Nenhum animal neste lote")
+            st.warning("Nenhum animal neste lote")
 
 else:
     dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
