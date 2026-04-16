@@ -169,7 +169,6 @@ elif menu == "Registrar Pesagem":
 # ---------------------------
 # ANÁLISE POR LOTE
 # ---------------------------
-------
 elif menu == "Analisar por Lote":
     st.subheader("Análise por Lote")
 
