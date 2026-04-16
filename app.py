@@ -31,8 +31,6 @@ menu = st.sidebar.selectbox(
         "Ocorrências Adversas"  # 👈 EXATAMENTE IGUAL
     ]
 )
-        
-)
 
 # ---------------------------
 # CADASTRAR LOTE
