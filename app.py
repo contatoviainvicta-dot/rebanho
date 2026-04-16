@@ -10,8 +10,10 @@ from database import (
     adicionar_animal,
     contar_animais_no_lote,
     adicionar_pesagem,
-    listar_pesagens
+    listar_pesagens,
+    listar_ocorrencias_por_animal  # 👈 ADICIONE ISSO
 )
+
 
 # Inicializar banco
 criar_tabelas()
