@@ -529,7 +529,7 @@ elif menu == "Analisar por Lote":
 
             else:
                 st.success("✅ Lotes com desempenho homogêneo")
-                # ---------------------------
+        # ---------------------------
         # RECOMENDAÇÕES AUTOMÁTICAS
         # ---------------------------
         st.subheader("🧾 Recomendações de Manejo")
@@ -544,7 +544,7 @@ elif menu == "Analisar por Lote":
 
             else:
                 st.success(f"🟢 {nome}: Manter manejo atual")
-                # ---------------------------
+        # ---------------------------
         # SCORE DE EFICIÊNCIA DO LOTE
         # ---------------------------
         ranking_score = []
@@ -593,6 +593,27 @@ elif menu == "Analisar por Lote":
                 ranking_score.append((nome_lote, score, gmd_medio, custo_por_kg))
 
         ranking_score.sort(key=lambda x: x[1], reverse=True)
+                # ---------------------------
+        # EXIBIÇÃO DO SCORE
+        # ---------------------------
+        if len(ranking_score) > 0:
+
+            st.subheader("🏆 Ranking Final de Eficiência")
+
+            for i, (nome, score, gmd, custo) in enumerate(ranking_score, start=1):
+                st.write(
+                    f"{i}º - {nome} → Score: {score:.4f} | "
+                    f"GMD: {gmd:.3f} | Custo/kg: R$ {custo:.2f}"
+                )
+
+            melhor = ranking_score[0]
+            pior = ranking_score[-1]
+
+            st.success(f"🥇 Melhor lote: {melhor[0]} (Score {melhor[1]:.4f})")
+            st.error(f"🔴 Pior lote: {pior[0]} (Score {pior[1]:.4f})")
+
+        else:
+            st.info("Sem dados suficientes para cálculo do score")
         # ---------------------------
         # EXIBIÇÃO + GRÁFICO
         # ---------------------------
