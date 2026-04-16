@@ -313,7 +313,7 @@ elif menu == "Analisar por Lote":
         else:
             st.info("Sem dados suficientes para ranking econômico")
 
-else:
+if len(ranking_economico) == 0:
     st.info("Sem dados suficientes para ranking econômico")
 
 # ---------------------------
