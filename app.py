@@ -840,5 +840,6 @@ elif menu == "Ocorrências Adversas":
 
                 st.success("Ocorrência registrada!")
                 st.write("DEBUG:", st.session_state.ocorrencias)
+                st.write("SUBMITTED:", submitted)
 
 #
