@@ -697,15 +697,121 @@ elif menu == "Analisar por Lote":
 
         else:
             st.info("Sem dados suficientes para comparação entre lotes")
-
-
-
 # ---------------------------
-# OCORRÊNCIAS ADVERSAS
+# ANÁLISE INDIVIDUAL DO ANIMAL
 # ---------------------------
+elif menu == "Analisar Animal":
+    st.subheader("🐄 Análise do Animal")
 
-    st.write("DEBUG ocorrencias:", st.session_state.ocorrencias)
-    st.write("Animal selecionado:", animal_id)
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+
+    else:
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
+
+        animais = listar_animais_por_lote(lote_id)
+
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
+
+        else:
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
+
+            pesagens = listar_pesagens(animal_id)
+
+            # ---------------------------
+            # DADOS DE PESAGEM
+            # ---------------------------
+            if len(pesagens) > 0:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                st.subheader("📊 Histórico de Peso")
+                st.dataframe(df)
+                st.line_chart(df.set_index("Data")["Peso"])
+
+                # ---------------------------
+                # CÁLCULO GMD
+                # ---------------------------
+                if len(df) > 1:
+                    peso_inicial = df["Peso"].iloc[0]
+                    peso_final = df["Peso"].iloc[-1]
+
+                    dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                    if dias > 0:
+                        gmd = (peso_final - peso_inicial) / dias
+
+                        st.subheader("🚀 Desempenho")
+
+                        st.write(f"⚖️ Ganho total: {peso_final - peso_inicial:.2f} kg")
+                        st.write(f"📆 Período: {dias} dias")
+                        st.write(f"📈 GMD: {gmd:.3f} kg/dia")
+
+                        # ---------------------------
+                        # ALERTAS ZOOTÉCNICOS
+                        # ---------------------------
+                        if gmd < 0:
+                            st.error("🚨 Perda de peso — possível doença")
+                        elif gmd > 2:
+                            st.error("🚨 GMD irreal — revisar dados")
+                        elif gmd < 0.5:
+                            st.warning("⚠️ GMD baixo")
+                        else:
+                            st.success("✅ Bom desempenho")
+
+                    else:
+                        st.info("Intervalo de datas insuficiente")
+            else:
+                st.info("Sem pesagens registradas")
+
+            # ---------------------------
+            # OCORRÊNCIAS DO ANIMAL
+            # ---------------------------
+            ocorrencias = listar_ocorrencias_mem(animal_id)
+
+            st.subheader("🚨 Ocorrências do Animal")
+
+            if len(ocorrencias) > 0:
+                df_oc = pd.DataFrame(ocorrencias)
+                df_oc["data"] = pd.to_datetime(df_oc["data"])
+
+                st.dataframe(df_oc)
+
+                for _, row in df_oc.iterrows():
+                    if row["gravidade"] == "Alta":
+                        st.error(f"🔴 {row['tipo']} - {row['descricao']}")
+                    elif row["gravidade"] == "Média":
+                        st.warning(f"🟡 {row['tipo']} - {row['descricao']}")
+                    else:
+                        st.info(f"🔵 {row['tipo']} - {row['descricao']}")
+            else:
+                st.success("✅ Nenhuma ocorrência registrada")
+
+            # ---------------------------
+            # ALERTA INTELIGENTE (GMD + OCORRÊNCIA)
+            # ---------------------------
+            if len(pesagens) > 1:
+                if 'gmd' in locals():
+                    if gmd < 0.5 and len(ocorrencias) > 0:
+                        st.error("🚨 Alto risco: baixo desempenho + ocorrência")
+                    elif gmd < 0.5:
+                        st.warning("⚠️ Baixo desempenho")
+                    elif len(ocorrencias) > 0:
+                        st.warning("⚠️ Histórico clínico — monitorar")
+                    else:
+                        st.success("✅ Animal saudável e produtivo")
+
+# ocorrencia diversa
 
 elif menu == "Ocorrências Adversas":
     st.subheader("🚨 Registrar Ocorrência")
@@ -714,6 +820,7 @@ elif menu == "Ocorrências Adversas":
 
     if len(animais) == 0:
         st.warning("Nenhum animal cadastrado")
+
     else:
         dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
@@ -729,13 +836,9 @@ elif menu == "Ocorrências Adversas":
             submitted = st.form_submit_button("Salvar Ocorrência")
 
             if submitted:
-                st.session_state.ocorrencias.append({
-                    "animal_id": int(animal_id),
-                    "data": str(data),
-                    "tipo": tipo,
-                    "descricao": descricao,
-                    "gravidade": gravidade
-                })
+                salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
 
                 st.success("Ocorrência registrada!")
-                st.write("DEBUG SALVO:", st.session_state.ocorrencias)
+                st.write("DEBUG:", st.session_state.ocorrencias)
+
+#
