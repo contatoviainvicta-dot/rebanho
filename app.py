@@ -784,6 +784,10 @@ elif menu == "Analisar Animal":
 # ---------------------------
 # OCORRÊNCIAS ADVERSAS
 # ---------------------------
+
+st.write("DEBUG ocorrencias:", st.session_state.ocorrencias)
+st.write("Animal selecionado:", animal_id)
+
 elif menu == "Ocorrencias Adversas":
     st.subheader("🚨 Registrar Ocorrência")
 
