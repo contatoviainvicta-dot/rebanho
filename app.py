@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from database import (
     if "ocorrencias" not in st.session_state:
-    st.session_state.ocorrencias = []
+        st.session_state.ocorrencias = []
 )
 from database import (
     criar_tabelas,
