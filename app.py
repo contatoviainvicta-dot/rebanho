@@ -809,9 +809,15 @@ elif menu == "Ocorrencias Adversas":
         descricao = st.text_area("Descrição")
         gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
 
-        if st.button("Salvar Ocorrência"):
+        with st.form("form_ocorrencia"):
+            data = st.date_input("Data")
+            tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
+            descricao = st.text_area("Descrição")
+            gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
+
+            submitted = st.form_submit_button("Salvar Ocorrência")
+
+        if submitted:
             salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
-            
-            st.write("SALVOU ISSO:", st.session_state.ocorrencias)  # 👈 DEBUG
             st.success("Ocorrência registrada!")
-        
+            st.write("DEBUG:", st.session_state.ocorrencias)
