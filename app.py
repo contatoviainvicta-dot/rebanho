@@ -753,8 +753,7 @@ elif menu == "Analisar Animal":
 
                 st.dataframe(df)
                 st.line_chart(df.set_index("Data")["Peso"])
-
-            # 🚨 OCORRÊNCIAS (DENTRO DO BLOCO!)
+# 🚨 OCORRÊNCIAS (DENTRO DO BLOCO!)
 elif menu == "Ocorrencias Adversas":
     st.subheader("🚨 Registrar Ocorrência")
 
@@ -775,6 +774,5 @@ elif menu == "Ocorrencias Adversas":
         gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
 
         if st.button("Salvar Ocorrência"):
-            salvar_ocorrencia_mem(animal_id, str(data), tipo, descricao, gravidade)
+            salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
             st.success("Ocorrência registrada!")
-            
