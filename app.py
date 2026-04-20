@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 from database import (
-    salvar_ocorrencia,
-    listar_ocorrencias_por_animal
+    if "ocorrencias" not in st.session_state:
+    st.session_state.ocorrencias = []
 )
 from database import (
     criar_tabelas,
@@ -754,26 +754,26 @@ elif menu == "Analisar Animal":
                 st.line_chart(df.set_index("Data")["Peso"])
 
             # 🚨 OCORRÊNCIAS (DENTRO DO BLOCO!)
-            ocorrencias = listar_ocorrencias_por_animal(animal_id)
+elif menu == "Ocorrencias Adversas":
+    st.subheader("🚨 Registrar Ocorrência")
 
-            st.subheader("🚨 Ocorrências do Animal")
+    animais = listar_animais()
 
-            if len(ocorrencias) > 0:
-                df_oc = pd.DataFrame(
-                    ocorrencias,
-                    columns=["Data", "Tipo", "Descrição", "Gravidade"]
-                )
+    if len(animais) == 0:
+        st.warning("Nenhum animal cadastrado")
 
-                df_oc["Data"] = pd.to_datetime(df_oc["Data"])
-                st.dataframe(df_oc)
+    else:
+        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
 
-                for _, row in df_oc.iterrows():
-                    if row["Gravidade"] == "Alta":
-                        st.error(f"🔴 {row['Tipo']} - {row['Descrição']}")
-                    elif row["Gravidade"] == "Média":
-                        st.warning(f"🟡 {row['Tipo']} - {row['Descrição']}")
-                    else:
-                        st.info(f"🔵 {row['Tipo']} - {row['Descrição']}")
+        escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+        animal_id = dict_animais[escolha]
 
-            else:
-                st.success("✅ Nenhuma ocorrência registrada")
+        data = st.date_input("Data")
+        tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
+        descricao = st.text_area("Descrição")
+        gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
+
+        if st.button("Salvar Ocorrência"):
+            salvar_ocorrencia_mem(animal_id, str(data), tipo, descricao, gravidade)
+            st.success("Ocorrência registrada!")
+            
