@@ -812,10 +812,10 @@ elif menu == "Analisar Animal":
                         st.success("✅ Animal saudável e produtivo")
 
 # ocorrencia adversa
-st.error("ENTREI NO BLOCO CERTO")
+
 elif menu == "Ocorrências Adversas":
     st.subheader("🚨 Registrar Ocorrência")
-
+    st.error("ENTREI NO BLOCO CERTO")
     animais = listar_animais()
 
     if len(animais) == 0:
