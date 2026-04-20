@@ -761,7 +761,9 @@ elif menu == "Analisar Animal":
 
             # 🚨 OCORRÊNCIAS DO ANIMAL (AQUI DENTRO!)
             ocorrencias = listar_ocorrencias_mem(animal_id)
-
+            st.write("DEBUG - TODAS OCORRÊNCIAS:", st.session_state.ocorrencias)
+             
+            st.write("DEBUG - ANIMAL ATUAL:", animal_id)
             st.subheader("🚨 Ocorrências do Animal")
 
             if len(ocorrencias) > 0:
