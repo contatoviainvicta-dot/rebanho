@@ -753,7 +753,32 @@ elif menu == "Analisar Animal":
 
                 st.dataframe(df)
                 st.line_chart(df.set_index("Data")["Peso"])
-# 🚨 OCORRÊNCIAS (DENTRO DO BLOCO!)
+
+            # 🚨 OCORRÊNCIAS DO ANIMAL (AQUI DENTRO!)
+            ocorrencias = listar_ocorrencias_mem(animal_id)
+
+            st.subheader("🚨 Ocorrências do Animal")
+
+            if len(ocorrencias) > 0:
+                df_oc = pd.DataFrame(ocorrencias)
+                df_oc["data"] = pd.to_datetime(df_oc["data"])
+
+                st.dataframe(df_oc)
+
+                for _, row in df_oc.iterrows():
+                    if row["gravidade"] == "Alta":
+                        st.error(f"🔴 {row['tipo']} - {row['descricao']}")
+                    elif row["gravidade"] == "Média":
+                        st.warning(f"🟡 {row['tipo']} - {row['descricao']}")
+                    else:
+                        st.info(f"🔵 {row['tipo']} - {row['descricao']}")
+            else:
+                st.success("✅ Nenhuma ocorrência registrada")
+
+
+# ---------------------------
+# OCORRÊNCIAS ADVERSAS
+# ---------------------------
 elif menu == "Ocorrencias Adversas":
     st.subheader("🚨 Registrar Ocorrência")
 
