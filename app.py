@@ -19,7 +19,12 @@ except Exception as e:
 
 if "ocorrencias" not in st.session_state:
     st.session_state.ocorrencias = []
-
+    
+def listar_ocorrencias_mem(animal_id):
+    return [
+        o for o in st.session_state.ocorrencias
+        if o["animal_id"] == animal_id
+    ]
 # Inicializar banco
 criar_tabelas()
 
