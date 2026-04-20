@@ -1,21 +1,24 @@
 import streamlit as st
 import pandas as pd
-if "ocorrencias" not in st.session_state:
-    st.session_state.ocorrencias = []    
-from database import (
-    criar_tabelas,
-    listar_lotes,
-    adicionar_lote,
-    obter_lote,
-    listar_animais,
-    listar_animais_por_lote,
-    adicionar_animal,
-    contar_animais_no_lote,
-    adicionar_pesagem,
-    listar_pesagens,
-    listar_ocorrencias_por_animal  # 👈 ADICIONE ISSO
-)
 
+try:
+    from database import (
+        criar_tabelas,
+        listar_lotes,
+        adicionar_lote,
+        obter_lote,
+        listar_animais,
+        listar_animais_por_lote,
+        adicionar_animal,
+        contar_animais_no_lote,
+        adicionar_pesagem,
+        listar_pesagens
+    )
+except Exception as e:
+    st.error(f"Erro ao importar database: {e}")
+
+if "ocorrencias" not in st.session_state:
+    st.session_state.ocorrencias = []
 
 # Inicializar banco
 criar_tabelas()
