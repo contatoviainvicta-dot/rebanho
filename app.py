@@ -760,10 +760,9 @@ elif menu == "Analisar Animal":
                         st.success("✅ Animal saudável e produtivo")
 
 # ocorrencia adversa
-
 elif menu == "Ocorrências Adversas":
     st.subheader("🚨 Registrar Ocorrência")
-    st.error("ENTREI NO BLOCO CERTO")
+
     animais = listar_animais()
 
     if len(animais) == 0:
@@ -775,13 +774,19 @@ elif menu == "Ocorrências Adversas":
         escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
         animal_id = dict_animais[escolha]
 
-        data = st.date_input("Data")
-        tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
-        descricao = st.text_area("Descrição")
-        gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
+        with st.form("form_ocorrencia"):
+            data = st.date_input("Data")
+            tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
+            descricao = st.text_area("Descrição")
+            gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
 
-        if st.button("Salvar Ocorrência"):
-            salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
+            submitted = st.form_submit_button("Salvar Ocorrência")
 
-            st.success("Ocorrência registrada!")
-            st.write("DEBUG:", st.session_state.ocorrencias)
+            if submitted:
+                salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
+
+                st.success("Ocorrência registrada!")
+
+                # DEBUG FORÇADO
+                st.write("DEBUG SALVO:")
+                st.json(st.session_state.ocorrencias)
