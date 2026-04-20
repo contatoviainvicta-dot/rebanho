@@ -811,6 +811,7 @@ elif menu == "Ocorrencias Adversas":
 
         if st.button("Salvar Ocorrência"):
             salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
+            
             st.write("SALVOU ISSO:", st.session_state.ocorrencias)  # 👈 DEBUG
             st.success("Ocorrência registrada!")
         
