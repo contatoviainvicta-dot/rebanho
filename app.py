@@ -811,7 +811,7 @@ elif menu == "Analisar Animal":
                     else:
                         st.success("✅ Animal saudável e produtivo")
 
-# ocorrencia diversa
+# ocorrencia adversa
 
 elif menu == "Ocorrências Adversas":
     st.subheader("🚨 Registrar Ocorrência")
@@ -827,19 +827,13 @@ elif menu == "Ocorrências Adversas":
         escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
         animal_id = dict_animais[escolha]
 
-        with st.form("form_ocorrencia"):
-            data = st.date_input("Data")
-            tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
-            descricao = st.text_area("Descrição")
-            gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
+        data = st.date_input("Data")
+        tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
+        descricao = st.text_area("Descrição")
+        gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
 
-            submitted = st.form_submit_button("Salvar Ocorrência")
+        if st.button("Salvar Ocorrência"):
+            salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
 
-            if submitted:
-                salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
-
-                st.success("Ocorrência registrada!")
-                st.write("DEBUG:", st.session_state.ocorrencias)
-                st.write("SUBMITTED:", submitted)
-
-#
+            st.success("Ocorrência registrada!")
+            st.write("DEBUG:", st.session_state.ocorrencias)
