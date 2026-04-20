@@ -180,19 +180,9 @@ def salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade):
         "descricao": descricao,
         "gravidade": gravidade
     })
-
-
+    
 def listar_ocorrencias_mem(animal_id):
     return [
         o for o in st.session_state.ocorrencias
-        if o["animal_id"] == animal_id
+        if int(o["animal_id"]) == int(animal_id)
     ]
-
-def salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade):
-    st.session_state.ocorrencias.append({
-        "animal_id": animal_id,
-        "data": data,
-        "tipo": tipo,
-        "descricao": descricao,
-        "gravidade": gravidade
-    })
