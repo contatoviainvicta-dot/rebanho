@@ -170,8 +170,11 @@ def listar_pesagens(animal_id):
     return dados
     
 def salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade):
+    if "ocorrencias" not in st.session_state:
+        st.session_state.ocorrencias = []
+
     st.session_state.ocorrencias.append({
-        "animal_id": animal_id,
+        "animal_id": int(animal_id),
         "data": str(data),
         "tipo": tipo,
         "descricao": descricao,
