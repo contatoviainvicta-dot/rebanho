@@ -698,89 +698,6 @@ elif menu == "Analisar por Lote":
         else:
             st.info("Sem dados suficientes para comparação entre lotes")
 
-# analise do animal
-# ---------
-elif menu == "Ocorrencias Adversas":
-    st.subheader("🚨 Registrar Ocorrência")
-
-    animais = listar_animais()
-
-    if len(animais) == 0:
-        st.warning("Nenhum animal cadastrado")
-
-    else:
-        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
-
-        escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-        animal_id = dict_animais[escolha]
-
-        data = st.date_input("Data")
-        tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
-        descricao = st.text_area("Descrição")
-        gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
-
-        if st.button("Salvar Ocorrência"):
-            salvar_ocorrencia(animal_id, str(data), tipo, descricao, gravidade)
-            st.success("Ocorrência registrada com sucesso!")
-
-# ---------------------------
-# ANÁLISE INDIVIDUAL
-# ---------------------------
-elif menu == "Analisar Animal":
-    st.subheader("Análise do Animal")
-
-    lotes = listar_lotes()
-
-    if len(lotes) == 0:
-        st.warning("Nenhum lote cadastrado")
-
-    else:
-        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
-        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
-        lote_id = dict_lotes[escolha_lote]
-
-        animais = listar_animais_por_lote(lote_id)
-
-        if len(animais) == 0:
-            st.warning("Nenhum animal neste lote")
-
-        else:
-            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
-            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-            animal_id = dict_animais[escolha_animal]
-
-            pesagens = listar_pesagens(animal_id)
-
-            if len(pesagens) > 0:
-                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                df["Data"] = pd.to_datetime(df["Data"])
-                df = df.sort_values("Data")
-
-                st.dataframe(df)
-                st.line_chart(df.set_index("Data")["Peso"])
-
-            # 🚨 OCORRÊNCIAS DO ANIMAL (AQUI DENTRO!)
-            ocorrencias = listar_ocorrencias_mem(animal_id)
-            st.write("DEBUG - TODAS OCORRÊNCIAS:", st.session_state.ocorrencias)
-             
-            st.write("DEBUG - ANIMAL ATUAL:", animal_id)
-            st.subheader("🚨 Ocorrências do Animal")
-
-            if len(ocorrencias) > 0:
-                df_oc = pd.DataFrame(ocorrencias)
-                df_oc["data"] = pd.to_datetime(df_oc["data"])
-
-                st.dataframe(df_oc)
-
-                for _, row in df_oc.iterrows():
-                    if row["gravidade"] == "Alta":
-                        st.error(f"🔴 {row['tipo']} - {row['descricao']}")
-                    elif row["gravidade"] == "Média":
-                        st.warning(f"🟡 {row['tipo']} - {row['descricao']}")
-                    else:
-                        st.info(f"🔵 {row['tipo']} - {row['descricao']}")
-            else:
-                st.success("✅ Nenhuma ocorrência registrada")
 
 
 # ---------------------------
@@ -789,7 +706,8 @@ elif menu == "Analisar Animal":
 
     st.write("DEBUG ocorrencias:", st.session_state.ocorrencias)
     st.write("Animal selecionado:", animal_id)
-elif menu == "Ocorrencias Adversas":
+
+elif menu == "Ocorrências Adversas":
     st.subheader("🚨 Registrar Ocorrência")
 
     animais = listar_animais()
@@ -811,9 +729,6 @@ elif menu == "Ocorrencias Adversas":
             submitted = st.form_submit_button("Salvar Ocorrência")
 
             if submitted:
-                if "ocorrencias" not in st.session_state:
-                    st.session_state.ocorrencias = []
-
                 st.session_state.ocorrencias.append({
                     "animal_id": int(animal_id),
                     "data": str(data),
