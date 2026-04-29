@@ -49,13 +49,14 @@ menu = st.sidebar.selectbox(
         "Registrar Pesagem",
         "Analisar por Lote",
         "Analisar Animal",
-        "Ocorrências Adversas"  # 👈 EXATAMENTE IGUAL
+        "Ocorrências Adversas",
+        "Dashboard Sanitário"  # 👈 NOVO
     ]
 )
-
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
+
 if menu == "Cadastrar Lote":
     st.subheader("Novo Lote")
 
@@ -110,6 +111,87 @@ if menu == "Cadastrar Lote":
 
             st.success("Lote criado com sucesso!")
 
+#--–--–--—--–-----------------
+
+elif menu == "Dashboard Sanitário":
+    st.subheader("🦠 Dashboard Sanitário")
+
+    ocorrencias = st.session_state.ocorrencias
+
+    if len(ocorrencias) == 0:
+        st.info("Nenhuma ocorrência registrada")
+    else:
+        df_oc = pd.DataFrame(ocorrencias)
+
+        # ---------------------------
+        # TOTAL DE OCORRÊNCIAS
+        # ---------------------------
+        total_oc = len(df_oc)
+        st.metric("Total de ocorrências", total_oc)
+
+        # ---------------------------
+        # TOTAL DE ANIMAIS
+        # ---------------------------
+        animais = listar_animais()
+        total_animais = len(animais)
+
+        if total_animais > 0:
+            taxa = (df_oc["animal_id"].nunique() / total_animais) * 100
+            st.metric("Taxa de animais com ocorrência (%)", f"{taxa:.2f}%")
+
+        # ---------------------------
+        # OCORRÊNCIAS POR TIPO
+        # ---------------------------
+        st.subheader("📊 Ocorrências por tipo")
+
+        tipos = df_oc["tipo"].value_counts()
+        st.bar_chart(tipos)
+
+        # ---------------------------
+        # OCORRÊNCIAS POR GRAVIDADE
+        # ---------------------------
+        st.subheader("🚨 Gravidade")
+
+        gravidade = df_oc["gravidade"].value_counts()
+        st.bar_chart(gravidade)
+
+        # ---------------------------
+        # OCORRÊNCIAS POR LOTE
+        # ---------------------------
+        st.subheader("🐄 Ocorrências por lote")
+
+        dados_lote = []
+
+        lotes = listar_lotes()
+
+        for lote in lotes:
+            lote_id = lote[0]
+            nome_lote = lote[1]
+
+            animais_lote = listar_animais_por_lote(lote_id)
+            ids_animais = [a[0] for a in animais_lote]
+
+            oc_lote = df_oc[df_oc["animal_id"].isin(ids_animais)]
+
+            dados_lote.append((nome_lote, len(oc_lote)))
+
+        df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Ocorrências"])
+        df_lote = df_lote.set_index("Lote")
+
+        st.bar_chart(df_lote)
+
+        # ---------------------------
+        # ALERTAS AUTOMÁTICOS
+        # ---------------------------
+        st.subheader("🚨 Alertas Sanitários")
+
+        for nome, qtd in dados_lote:
+            if qtd >= 5:
+                st.error(f"🔴 {nome}: Alta incidência de ocorrências")
+            elif qtd >= 2:
+                st.warning(f"🟡 {nome}: Atenção moderada")
+            else:
+                st.success(f"🟢 {nome}: Situação controlada")
 # ---------------------------
 # CADASTRAR ANIMAL
 # ---------------------------
