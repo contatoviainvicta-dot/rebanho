@@ -976,7 +976,7 @@ elif menu == "Ocorrências Adversas":
                 adicionar_ocorrencia(
                     animal_id,
                     str(data),
-                    tipo,    
+                    tipo,
                     descricao,
                     gravidade,
                     custo,
