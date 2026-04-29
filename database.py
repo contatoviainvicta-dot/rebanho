@@ -200,3 +200,16 @@ def listar_ocorrencias_mem(animal_id):
         o for o in st.session_state.ocorrencias
         if int(o["animal_id"]) == int(animal_id)
     ]
+
+def adicionar_ocorrencia(animal_id, data, tipo, descricao, gravidade, custo, dias, status):
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO ocorrencias
+        (animal_id, data, tipo, descricao, gravidade, custo, dias_recuperacao, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (animal_id, data, tipo, descricao, gravidade, custo, dias, status))
+
+    conn.commit()
+    conn.close()
