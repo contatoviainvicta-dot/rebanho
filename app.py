@@ -964,13 +964,22 @@ elif menu == "Ocorrências Adversas":
             descricao = st.text_area("Descrição")
             gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
 
+            custo = st.number_input("💰 Custo do tratamento (R$)", 0.0)
+            dias = st.number_input("⏱️ Dias de recuperação", 0)
+            status = st.selectbox("Status", ["Em tratamento", "Resolvido"])
+
             submitted = st.form_submit_button("Salvar Ocorrência")
 
             if submitted:
-                salvar_ocorrencia_mem(animal_id, data, tipo, descricao, gravidade)
+                adicionar_ocorrencia(
+                    animal_id,
+                    str(data),
+                    tipo,    
+                    descricao,
+                    gravidade,
+                    custo,
+                    dias,
+                    status
+                )
 
-                st.success("Ocorrência registrada!")
-
-                # DEBUG FORÇADO
-                st.write("DEBUG SALVO:")
-                st.json(st.session_state.ocorrencias)
+                st.success("Ocorrência registrada no banco!")
