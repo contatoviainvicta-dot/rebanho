@@ -12,7 +12,9 @@ try:
         adicionar_animal,
         contar_animais_no_lote,
         adicionar_pesagem,
-        listar_pesagens
+        listar_pesagens,
+        adicionar_ocorrencia,
+        listar_ocorrencias
     )
 except Exception as e:
     st.error(f"Erro ao importar database: {e}")
