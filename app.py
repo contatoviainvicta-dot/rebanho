@@ -192,6 +192,87 @@ elif menu == "Dashboard Sanitário":
                 st.warning(f"🟡 {nome}: Atenção moderada")
             else:
                 st.success(f"🟢 {nome}: Situação controlada")
+        
+# ---------------------------
+# CORRELAÇÃO GMD x OCORRÊNCIAS
+# ---------------------------
+        st.subheader("📉 Correlação: GMD x Ocorrências")
+
+        dados_correlacao = []
+
+        animais = listar_animais()
+
+        for animal in animais:
+            animal_id = animal[0]
+            nome = animal[1]
+
+            pesagens = listar_pesagens(animal_id)
+
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                peso_inicial = df["Peso"].iloc[0]
+                peso_final = df["Peso"].iloc[-1]
+
+                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+                if dias > 0:
+                    gmd = (peso_final - peso_inicial) / dias
+
+            # contar ocorrências do animal
+                    oc = [
+                        o for o in st.session_state.ocorrencias
+                        if o["animal_id"] == animal_id
+                    ]
+
+                    qtd_oc = len(oc)
+
+                    dados_correlacao.append((nome, gmd, qtd_oc))
+
+# ---------------------------
+# DATAFRAME
+# ---------------------------
+        if len(dados_correlacao) > 0:
+
+            df_corr = pd.DataFrame(
+                dados_correlacao,
+                columns=["Animal", "GMD", "Ocorrencias"]
+            )
+
+            st.dataframe(df_corr)
+
+    # ---------------------------
+    # GRÁFICO
+    # ---------------------------
+            st.subheader("📊 Dispersão (GMD x Ocorrências)")
+
+            st.scatter_chart(df_corr, x="Ocorrencias", y="GMD")
+
+    # ---------------------------
+    # ANÁLISE AUTOMÁTICA
+    # ---------------------------
+            st.subheader("🧠 Interpretação")
+
+            media_gmd = df_corr["GMD"].mean()
+
+            for _, row in df_corr.iterrows():
+
+                if row["Ocorrencias"] > 0 and row["GMD"] < media_gmd:
+                    st.error(f"🔴 {row['Animal']}: baixo GMD associado a ocorrência")
+
+                elif row["Ocorrencias"] > 0:
+                    st.warning(f"🟡 {row['Animal']}: ocorrência sem impacto aparente")
+
+                elif row["GMD"] < media_gmd:
+                    st.warning(f"🟠 {row['Animal']}: baixo GMD sem ocorrência registrada")
+
+                else:
+                    st.success(f"🟢 {row['Animal']}: bom desempenho e saudável")
+
+        else:
+            st.info("Sem dados suficientes para correlação")
 # ---------------------------
 # CADASTRAR ANIMAL
 # ---------------------------
