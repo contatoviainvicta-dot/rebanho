@@ -213,3 +213,16 @@ def adicionar_ocorrencia(animal_id, data, tipo, descricao, gravidade, custo, dia
 
     conn.commit()
     conn.close()
+
+def listar_ocorrencias(animal_id):
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT * FROM ocorrencias WHERE animal_id = ?
+    """, (animal_id,))
+
+    dados = cursor.fetchall()
+    conn.close()
+
+    return dados
