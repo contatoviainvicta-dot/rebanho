@@ -39,6 +39,23 @@ def criar_tabelas():
 
     if coluna not in colunas:
         cursor.execute(f"ALTER TABLE {tabela} ADD COLUMN {coluna} {tipo}")
+    # garantir que tabela existe
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS ocorrencias (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    animal_id INTEGER,
+    data TEXT,
+    tipo TEXT,
+    descricao TEXT,
+    gravidade TEXT
+)
+""")
+
+# MIGRAÇÃO SEGURA
+adicionar_coluna_se_nao_existir(cursor, "ocorrencias", "custo", "REAL")
+adicionar_coluna_se_nao_existir(cursor, "ocorrencias", "dias_recuperacao", "INTEGER")
+adicionar_coluna_se_nao_existir(cursor, "ocorrencias", "status", "TEXT")
+    
     # ANIMAIS
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS animais (
