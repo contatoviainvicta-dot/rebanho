@@ -33,7 +33,12 @@ def criar_tabelas():
         status TEXT
     )
     """)
-    
+    def adicionar_coluna_se_nao_existir(cursor, tabela, coluna, tipo):
+    cursor.execute(f"PRAGMA table_info({tabela})")
+    colunas = [c[1] for c in cursor.fetchall()]
+
+    if coluna not in colunas:
+        cursor.execute(f"ALTER TABLE {tabela} ADD COLUMN {coluna} {tipo}")
     # ANIMAIS
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS animais (
