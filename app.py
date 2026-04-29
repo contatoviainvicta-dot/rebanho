@@ -772,16 +772,28 @@ elif menu == "Analisar Animal":
 elif menu == "Ocorrências Adversas":
     st.subheader("🚨 Registrar Ocorrência")
 
-    animais = listar_animais()
+    lotes = listar_lotes()
 
-    if len(animais) == 0:
-        st.warning("Nenhum animal cadastrado")
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
 
     else:
-        dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
 
-        escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-        animal_id = dict_animais[escolha]
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
+
+        animais = listar_animais_por_lote(lote_id)
+
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
+
+        else:
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+            escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha]
+                  
 
         with st.form("form_ocorrencia"):
             data = st.date_input("Data")
