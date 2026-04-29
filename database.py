@@ -19,7 +19,21 @@ def criar_tabelas():
         transporte TEXT
     )
     """)
-
+    # ocorrencias
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ocorrencias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        animal_id INTEGER,
+        data TEXT,
+        tipo TEXT,
+        descricao TEXT,
+        gravidade TEXT,
+        custo REAL,
+        dias_recuperacao INTEGER,
+        status TEXT
+    )
+    """)
+    
     # ANIMAIS
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS animais (
