@@ -2,7 +2,39 @@ import sqlite3
 
 def conectar():
     return sqlite3.connect("data.db", check_same_thread=False)
+import sqlite3
 
+def criar_tabelas():
+    conn = sqlite3.connect("rebanho.db")
+    cursor = conn.cursor()
+
+    # cria tabela básica (antiga)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS ocorrencias (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        animal_id INTEGER,
+        data TEXT,
+        tipo TEXT,
+        descricao TEXT,
+        gravidade TEXT
+    )
+    """)
+
+    # -------- MIGRAÇÃO SEGURA --------
+    cursor.execute("PRAGMA table_info(ocorrencias)")
+    colunas = [c[1] for c in cursor.fetchall()]
+
+    if "custo" not in colunas:
+        cursor.execute("ALTER TABLE ocorrencias ADD COLUMN custo REAL")
+
+    if "dias_recuperacao" not in colunas:
+        cursor.execute("ALTER TABLE ocorrencias ADD COLUMN dias_recuperacao INTEGER")
+
+    if "status" not in colunas:
+        cursor.execute("ALTER TABLE ocorrencias ADD COLUMN status TEXT")
+
+    conn.commit()
+    conn.close()
 def criar_tabelas():
     conn = conectar()
     cursor = conn.cursor()
