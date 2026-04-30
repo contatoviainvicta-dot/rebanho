@@ -118,7 +118,11 @@ if menu == "Cadastrar Lote":
 elif menu == "Dashboard Sanitário":
     st.subheader("🦠 Dashboard Sanitário")
 
-    ocorrencias = st.session_state.ocorrencias
+    todas_ocorrencias = []
+
+    for animal in listar_animais():
+        oc = listar_ocorrencias(animal[0])
+        todas_ocorrencias.extend(oc)
 
     if len(ocorrencias) == 0:
         st.info("Nenhuma ocorrência registrada")
