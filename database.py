@@ -197,3 +197,41 @@ def listar_pesagens(animal_id):
     conn.close()
 
     return dados
+
+# ---------------------------
+# LOTES
+# ---------------------------
+def adicionar_lote(nome, descricao, data, qtd_comprada, qtd_recebida, transporte):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO lotes
+        (nome, descricao, data, qtd_comprada, qtd_recebida, transporte)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (nome, descricao, data, qtd_comprada, qtd_recebida, transporte))
+
+    conn.commit()
+    conn.close()
+
+
+def listar_lotes():
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM lotes")
+    dados = cursor.fetchall()
+
+    conn.close()
+    return dados
+
+
+def obter_lote(lote_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM lotes WHERE id = ?", (lote_id,))
+    dado = cursor.fetchone()
+
+    conn.close()
+    return dado
