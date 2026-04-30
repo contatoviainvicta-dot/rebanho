@@ -118,29 +118,41 @@ if menu == "Cadastrar Lote":
 elif menu == "Dashboard Sanitário":
     st.subheader("🦠 Dashboard Sanitário")
 
+# ---------------------------
+# SELEÇÃO DE LOTE
+# ---------------------------
+    lotes = listar_lotes()
+
+    opcoes = ["Todos os lotes"]
+
+    dict_lotes = {}
+
+    for l in lotes:
+        nome = f"{l[1]} (ID {l[0]})"
+        opcoes.append(nome)
+        dict_lotes[nome] = l[0]
+
+        escolha = st.selectbox("Selecione o lote para análise", opcoes)
+        
     todas_ocorrencias = []
 
     for animal in listar_animais():
         oc = listar_ocorrencias(animal[0])
         todas_ocorrencias.extend(oc)
 
-    if len(todas_ocorrencias) == 0:
-        st.info("Nenhuma ocorrência registrada")
+    todas_ocorrencias = []
+
+    if escolha == "Todos os lotes":
+        animais = listar_animais()
+
     else:
-        df_oc = pd.DataFrame(
-            todas_ocorrencias,
-            columns=[
-                "id",
-                "animal_id",
-                "data",
-                "tipo",
-                "descricao",
-                "gravidade",
-                "custo",
-                "dias_recuperacao",
-                "status"
-            ]
-        )
+        lote_id = dict_lotes[escolha]
+        animais = listar_animais_por_lote(lote_id)
+
+# buscar ocorrências
+    for animal in animais:
+        oc = listar_ocorrencias(animal[0])
+        todas_ocorrencias.extend(oc)
 
         # ---------------------------
         # TOTAL DE ANIMAIS
