@@ -125,7 +125,7 @@ elif menu == "Dashboard Sanitário":
         todas_ocorrencias.extend(oc)
 
     if len(todas_ocorrencias) == 0:
-    st.info("Nenhuma ocorrência registrada")
+        st.info("Nenhuma ocorrência registrada")
     else:
         df_oc = pd.DataFrame(
             todas_ocorrencias,
