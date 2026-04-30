@@ -118,3 +118,82 @@ def listar_ocorrencias(animal_id):
     conn.close()
 
     return dados
+
+
+# ---------------------------
+# ANIMAIS
+# ---------------------------
+def adicionar_animal(identificacao, idade, lote_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO animais (identificacao, idade, lote_id)
+        VALUES (?, ?, ?)
+    """, (identificacao, idade, lote_id))
+
+    conn.commit()
+    conn.close()
+
+
+def listar_animais():
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM animais")
+    dados = cursor.fetchall()
+
+    conn.close()
+    return dados
+
+
+def listar_animais_por_lote(lote_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM animais WHERE lote_id = ?", (lote_id,))
+    dados = cursor.fetchall()
+
+    conn.close()
+    return dados
+
+
+def contar_animais_no_lote(lote_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM animais WHERE lote_id = ?", (lote_id,))
+    total = cursor.fetchone()[0]
+
+    conn.close()
+    return total
+
+
+# ---------------------------
+# PESAGENS
+# ---------------------------
+def adicionar_pesagem(animal_id, peso, data):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO pesagens (animal_id, peso, data)
+        VALUES (?, ?, ?)
+    """, (animal_id, peso, data))
+
+    conn.commit()
+    conn.close()
+
+
+def listar_pesagens(animal_id):
+    conn = conectar()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT * FROM pesagens WHERE animal_id = ?
+    """, (animal_id,))
+
+    dados = cursor.fetchall()
+    conn.close()
+
+    return dados
