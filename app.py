@@ -124,16 +124,23 @@ elif menu == "Dashboard Sanitário":
         oc = listar_ocorrencias(animal[0])
         todas_ocorrencias.extend(oc)
 
-    if len(ocorrencias) == 0:
-        st.info("Nenhuma ocorrência registrada")
+    if len(todas_ocorrencias) == 0:
+    st.info("Nenhuma ocorrência registrada")
     else:
-        df_oc = pd.DataFrame(ocorrencias)
-
-        # ---------------------------
-        # TOTAL DE OCORRÊNCIAS
-        # ---------------------------
-        total_oc = len(df_oc)
-        st.metric("Total de ocorrências", total_oc)
+        df_oc = pd.DataFrame(
+            todas_ocorrencias,
+            columns=[
+                "id",
+                "animal_id",
+                "data",
+                "tipo",
+                "descricao",
+                "gravidade",
+                "custo",
+                "dias_recuperacao",
+                "status"
+            ]
+        )
 
         # ---------------------------
         # TOTAL DE ANIMAIS
