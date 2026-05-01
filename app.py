@@ -137,7 +137,14 @@ elif menu == "Dashboard Sanitário":
 # COLETAR OCORRÊNCIAS
 # ---------------------------
     todas_ocorrencias = []
+    if total_animais > 0 and len(df_oc) > 0:
+        animais_com_oc = df_oc["animal_id"].nunique()
+        incidencia = (animais_com_oc / total_animais) * 100
+    else:
+        incidencia = 0
 
+    st.metric("📊 Incidência (%)", f"{incidencia:.2f}%")
+    
     if escolha == "Todos os lotes":
         animais = listar_animais()
     else:
