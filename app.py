@@ -138,15 +138,15 @@ elif menu == "Dashboard Sanitário":
 # ---------------------------
     todas_ocorrencias = []
 
-        if escolha == "Todos os lotes":
-            animais = listar_animais()
-        else:
-            lote_id = dict_lotes[escolha]
-            animais = listar_animais_por_lote(lote_id)
+    if escolha == "Todos os lotes":
+        animais = listar_animais()
+    else:
+        lote_id = dict_lotes[escolha]
+        animais = listar_animais_por_lote(lote_id)
 
-        for animal in animais:
-            oc = listar_ocorrencias(animal[0])
-            todas_ocorrencias.extend(oc)
+    for animal in animais:
+        oc = listar_ocorrencias(animal[0])
+        todas_ocorrencias.extend(oc)
 
 # ---------------------------
 # CRIAR DATAFRAME (ANTES DE USAR)
