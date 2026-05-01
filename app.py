@@ -134,36 +134,51 @@ elif menu == "Dashboard Sanitário":
 
         escolha = st.selectbox("Selecione o lote para análise", opcoes)
         
-    todas_ocorrencias = []
+    # ---------------------------
+# COLETAR OCORRÊNCIAS
+# ---------------------------
+        todas_ocorrencias = []
 
-    for animal in listar_animais():
-        oc = listar_ocorrencias(animal[0])
-        todas_ocorrencias.extend(oc)
+        if escolha == "Todos os lotes":
+            animais = listar_animais()
+        else:
+            lote_id = dict_lotes[escolha]
+            animais = listar_animais_por_lote(lote_id)
 
-    todas_ocorrencias = []
+        for animal in animais:
+            oc = listar_ocorrencias(animal[0])
+            todas_ocorrencias.extend(oc)
 
-    if escolha == "Todos os lotes":
-        animais = listar_animais()
+# ---------------------------
+# CRIAR DATAFRAME (ANTES DE USAR)
+# ---------------------------
+        df_oc = pd.DataFrame(
+            todas_ocorrencias,
+            columns=[
+                "id",
+                "animal_id",
+                "data",
+                "tipo",
+                "descricao",
+                "gravidade",
+                "custo",
+                "dias_recuperacao",
+                "status"
+            ]
+        )
 
-    else:
-        lote_id = dict_lotes[escolha]
-        animais = listar_animais_por_lote(lote_id)
+# ---------------------------
+# MÉTRICAS (AGORA SIM)
+# ---------------------------
+total_animais = len(animais)
 
-# buscar ocorrências
-    for animal in animais:
-        oc = listar_ocorrencias(animal[0])
-        todas_ocorrencias.extend(oc)
+if total_animais > 0 and len(df_oc) > 0:
+    taxa = (df_oc["animal_id"].nunique() / total_animais) * 100
+    st.metric("Taxa de ocorrência (%)", f"{taxa:.2f}%")
+else:
+    st.metric("Taxa de ocorrência (%)", "0%")
 
-        # ---------------------------
-        # TOTAL DE ANIMAIS
-        # ---------------------------
-        animais = listar_animais()
-        total_animais = len(animais)
-
-        if total_animais > 0:
-            taxa = (df_oc["animal_id"].nunique() / total_animais) * 100
-            st.metric("Taxa de animais com ocorrência (%)", f"{taxa:.2f}%")
-
+    
         # ---------------------------
         # OCORRÊNCIAS POR TIPO
         # ---------------------------
