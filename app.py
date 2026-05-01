@@ -171,11 +171,12 @@ elif menu == "Dashboard Sanitário":
 # ---------------------------
         total_animais = len(animais)
 
-        if total_animais > 0 and len(df_oc) > 0:
-            taxa = (df_oc["animal_id"].nunique() / total_animais) * 100
-            st.metric("Taxa de ocorrência (%)", f"{taxa:.2f}%")
-        else:
-            st.metric("Taxa de ocorrência (%)", "0%")
+        if total_animais > 0:
+            animais_com_oc = df_oc["animal_id"].nunique()
+            incidencia = (animais_com_oc / total_animais) * 100
+
+            st.metric("📊 Incidência (%)", f"{incidencia:.2f}%")
+        
 
     
         # ---------------------------
