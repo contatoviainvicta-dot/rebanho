@@ -132,12 +132,11 @@ elif menu == "Dashboard Sanitário":
         opcoes.append(nome)
         dict_lotes[nome] = l[0]
 
-    escolha = st.selectbox("Selecione o lote para análise", opcoes)
-        
-    # ---------------------------
+    escolha = st.selectbox("Selecione o lote para análise", opcoes)   
+# ---------------------------
 # COLETAR OCORRÊNCIAS
 # ---------------------------
-        todas_ocorrencias = []
+    todas_ocorrencias = []
 
         if escolha == "Todos os lotes":
             animais = listar_animais()
