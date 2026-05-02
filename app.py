@@ -114,17 +114,15 @@ if menu == "Cadastrar Lote":
             st.success("Lote criado com sucesso!")
 
 #--–--–--—--–-----------------
-
 elif menu == "Dashboard Sanitário":
     st.subheader("🦠 Dashboard Sanitário")
 
-# ---------------------------
-# SELEÇÃO DE LOTE
-# ---------------------------
+    # ---------------------------
+    # SELEÇÃO DE LOTE
+    # ---------------------------
     lotes = listar_lotes()
 
     opcoes = ["Todos os lotes"]
-
     dict_lotes = {}
 
     for l in lotes:
@@ -132,133 +130,126 @@ elif menu == "Dashboard Sanitário":
         opcoes.append(nome)
         dict_lotes[nome] = l[0]
 
-    escolha = st.selectbox("Selecione o lote para análise", opcoes)   
-# ---------------------------
-# COLETAR OCORRÊNCIAS
-# ---------------------------
-  
-# ---------------------------
-# COLETAR OCORRÊNCIAS
-# ---------------------------
+    escolha = st.selectbox("Selecione o lote para análise", opcoes)
+
+    # ---------------------------
+    # DEFINIR ANIMAIS (FALTAVA ISSO)
+    # ---------------------------
+    if escolha == "Todos os lotes":
+        animais = listar_animais()
+    else:
+        lote_id = dict_lotes[escolha]
+        animais = listar_animais_por_lote(lote_id)
+
+    # ---------------------------
+    # COLETAR OCORRÊNCIAS
+    # ---------------------------
     todas_ocorrencias = []
 
     for animal in animais:
         oc = listar_ocorrencias(animal[0])
         todas_ocorrencias.extend(oc)
 
-# ---------------------------
-# CRIAR DATAFRAME
-# ---------------------------
+    # ---------------------------
+    # DATAFRAME
+    # ---------------------------
     df_oc = pd.DataFrame(
         todas_ocorrencias,
         columns=[
-            "id",
-            "animal_id",
-            "data",
-            "tipo",
-            "descricao",
-            "gravidade",
-            "custo",
-            "dias_recuperacao",
-            "status"
+            "id", "animal_id", "data", "tipo",
+            "descricao", "gravidade",
+            "custo", "dias_recuperacao", "status"
         ]
     )
 
-# ---------------------------
-# MÉTRICAS
-# ---------------------------
+    # ---------------------------
+    # MÉTRICAS
+    # ---------------------------
     total_animais = len(animais)
 
-    if total_animais > 0:
+    if total_animais > 0 and len(df_oc) > 0:
         animais_com_oc = df_oc["animal_id"].nunique()
         incidencia = (animais_com_oc / total_animais) * 100
     else:
         incidencia = 0
 
     st.metric("📊 Incidência (%)", f"{incidencia:.2f}%")
-        
-    
-        # ---------------------------
-        # OCORRÊNCIAS POR TIPO
-        # ---------------------------
+
+    # ---------------------------
+    # OCORRÊNCIAS POR TIPO
+    # ---------------------------
+    if len(df_oc) > 0:
         st.subheader("📊 Ocorrências por tipo")
+        st.bar_chart(df_oc["tipo"].value_counts())
 
-        tipos = df_oc["tipo"].value_counts()
-        st.bar_chart(tipos)
-
-        # ---------------------------
-        # OCORRÊNCIAS POR GRAVIDADE
-        # ---------------------------
         st.subheader("🚨 Gravidade")
+        st.bar_chart(df_oc["gravidade"].value_counts())
 
-        gravidade = df_oc["gravidade"].value_counts()
-        st.bar_chart(gravidade)
+    # ---------------------------
+    # INCIDÊNCIA POR LOTE
+    # ---------------------------
+    st.subheader("🐄 Incidência por lote (%)")
 
-        # ---------------------------
-        # OCORRÊNCIAS POR LOTE
-        # ---------------------------
-        st.subheader("🐄 Incidência por lote (%)")
+    dados_lote = []
 
-        dados_lote = []
+    for lote in lotes:
+        lote_id = lote[0]
+        nome_lote = lote[1]
 
-        lotes = listar_lotes()
+        animais_lote = listar_animais_por_lote(lote_id)
+        total = len(animais_lote)
 
-        for lote in lotes:
-            lote_id = lote[0]
-            nome_lote = lote[1]
+        ids_animais = [a[0] for a in animais_lote]
+        oc_lote = df_oc[df_oc["animal_id"].isin(ids_animais)]
 
-            animais_lote = listar_animais_por_lote(lote_id)
-            total = len(animais_lote)
+        doentes = oc_lote["animal_id"].nunique()
 
-            ids_animais = [a[0] for a in animais_lote]
+        incidencia_lote = (doentes / total) * 100 if total > 0 else 0
 
-            oc_lote = df_oc[df_oc["animal_id"].isin(ids_animais)]
+        dados_lote.append((nome_lote, incidencia_lote))
 
-            animais_doentes = oc_lote["animal_id"].nunique()
+    df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Incidência (%)"]).set_index("Lote")
+    st.bar_chart(df_lote)
 
-            if total > 0:
-                incidencia = (animais_doentes / total) * 100
-            else:
-                incidencia = 0
+    # ---------------------------
+    # INCIDÊNCIA POR TIPO
+    # ---------------------------
+    st.subheader("🦠 Incidência por tipo (%)")
 
-            dados_lote.append((nome_lote, incidencia))
+    dados_tipo = []
 
-        df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Incidência (%)"])
-        df_lote = df_lote.set_index("Lote")
+    if total_animais > 0 and len(df_oc) > 0:
+        for tipo in df_oc["tipo"].unique():
+            df_tipo = df_oc[df_oc["tipo"] == tipo]
+            doentes = df_tipo["animal_id"].nunique()
+            incidencia_tipo = (doentes / total_animais) * 100
+            dados_tipo.append((tipo, incidencia_tipo))
 
-        st.bar_chart(df_lote)
+        df_tipo = pd.DataFrame(dados_tipo, columns=["Tipo", "Incidência (%)"]).set_index("Tipo")
+        st.bar_chart(df_tipo)
 
-# ---------------------------
-# INCIDÊNCIA POR TIPO
-# ---------------------------
-        st.subheader("🦠 Incidência por tipo (%)")
+    # ---------------------------
+    # ALERTAS
+    # ---------------------------
+    st.subheader("🚨 Alertas Sanitários")
 
-        dados_tipo = []
-
-        # garante que há dados
-        if total_animais > 0 and len(df_oc) > 0:
-
-            tipos = df_oc["tipo"].unique()
-
-            for tipo in tipos:
-                df_tipo = df_oc[df_oc["tipo"] == tipo]
-
-                # conta animais únicos com esse tipo
-                animais_doentes = df_tipo["animal_id"].nunique()
-
-                incidencia = (animais_doentes / total_animais) * 100
-
-                dados_tipo.append((tipo, incidencia))
-
-    # dataframe
-            df_tipo = pd.DataFrame(dados_tipo, columns=["Tipo", "Incidência (%)"])
-            df_tipo = df_tipo.set_index("Tipo")
-
-            st.bar_chart(df_tipo)
-
+    for nome, inc in dados_lote:
+        if inc > 20:
+            st.error(f"🔴 {nome}: alta incidência ({inc:.1f}%)")
+        elif inc > 5:
+            st.warning(f"🟡 {nome}: incidência moderada ({inc:.1f}%)")
         else:
-            st.info("Sem dados suficientes para análise por tipo")
-    
+            st.success(f"🟢 {nome}: controle adequado ({inc:.1f}%)")
+
+    st.subheader("🚨 Alertas por tipo")
+
+    for tipo, inc in dados_tipo:
+        if inc > 20:
+            st.error(f"🔴 {tipo}: alta incidência ({inc:.1f}%)")
+        elif inc > 5:
+            st.warning(f"🟡 {tipo}: incidência moderada ({inc:.1f}%)")
+        else:
+            st.success(f"🟢 {tipo}: controle adequado ({inc:.1f}%)")
         # ---------------------------
         # ALERTAS AUTOMÁTICOS
         # ---------------------------
