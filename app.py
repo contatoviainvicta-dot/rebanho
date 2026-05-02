@@ -614,7 +614,24 @@ elif menu == "Analisar por Lote":
 
                     if 0 <= gmd <= 2:
                         gmds.append(gmd)
+                        
+        preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
 
+        ganho_total = 0
+
+        for animal in animais:
+            pesagens = listar_pesagens(animal[0])
+
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
+
+                ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+
+                if ganho > 0:
+                    ganho_total += ganho
+                    
         # ---------------------------
         # EXIBIÇÃO DO GMD
         # ---------------------------
