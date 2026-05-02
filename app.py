@@ -1127,3 +1127,97 @@ elif menu == "Ocorrências Adversas":
                 )
 
                 st.success("Ocorrência registrada no banco!")
+
+elif menu == "Painel de Decisão":
+    st.title("📊 Painel de Decisão")
+
+preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
+custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
+
+dados_lotes = []
+
+lotes = listar_lotes()
+
+for lote in lotes:
+    lote_id = lote[0]
+    nome_lote = lote[1]
+
+    animais = listar_animais_por_lote(lote_id)
+
+    ganho_total = 0
+    custo_sanitario = 0
+    dias_total = 0
+
+    for animal in animais:
+        animal_id = animal[0]
+
+        # PESO
+        pesagens = listar_pesagens(animal_id)
+
+        if len(pesagens) > 1:
+            df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+            df["Data"] = pd.to_datetime(df["Data"])
+            df = df.sort_values("Data")
+
+            ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+            dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+            if ganho > 0 and dias > 0:
+                ganho_total += ganho
+                dias_total += dias
+
+        # OCORRÊNCIAS
+        ocorrencias = listar_ocorrencias(animal_id)
+
+        for oc in ocorrencias:
+            if oc[6] is not None:
+                custo_sanitario += oc[6]
+
+    numero_animais = len(animais)
+
+    custo_operacional = custo_diario * numero_animais * dias_total
+    receita = ganho_total * preco_kg
+    lucro = receita - (custo_operacional + custo_sanitario)
+
+    dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
+
+# dataframe
+df_decisao = pd.DataFrame(
+    dados_lotes,
+    columns=["Lote", "Lucro", "Receita", "Custo Operacional", "Custo Sanitário"]
+)
+
+df_decisao = df_decisao.sort_values(by="Lucro", ascending=False)
+
+st.subheader("📈 Visão Geral")
+
+total_lucro = df_decisao["Lucro"].sum()
+st.metric("💰 Lucro total", f"R$ {total_lucro:.2f}")
+
+melhor = df_decisao.iloc[0]
+pior = df_decisao.iloc[-1]
+
+st.success(f"🥇 Melhor lote: {melhor['Lote']} (R$ {melhor['Lucro']:.2f})")
+st.error(f"🔴 Pior lote: {pior['Lote']} (R$ {pior['Lucro']:.2f})")
+
+st.subheader("📊 Ranking de Lotes")
+
+st.dataframe(df_decisao)
+
+st.subheader("📉 Lucro por lote")
+
+df_plot = df_decisao.set_index("Lote")["Lucro"]
+st.bar_chart(df_plot)
+
+st.subheader("🚨 Alertas de Decisão")
+
+for _, row in df_decisao.iterrows():
+
+    if row["Lucro"] < 0:
+        st.error(f"🔴 {row['Lote']}: prejuízo → revisar manejo urgente")
+
+    elif row["Custo Sanitário"] > row["Receita"] * 0.2:
+        st.warning(f"🟡 {row['Lote']}: custo sanitário elevado")
+
+    else:
+        st.success(f"🟢 {row['Lote']}: operação saudável")
