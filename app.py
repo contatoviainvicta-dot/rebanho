@@ -228,6 +228,37 @@ elif menu == "Dashboard Sanitário":
 
         st.bar_chart(df_lote)
 
+# ---------------------------
+# INCIDÊNCIA POR TIPO
+# ---------------------------
+        st.subheader("🦠 Incidência por tipo (%)")
+
+        dados_tipo = []
+
+        # garante que há dados
+        if total_animais > 0 and len(df_oc) > 0:
+
+            tipos = df_oc["tipo"].unique()
+
+            for tipo in tipos:
+                df_tipo = df_oc[df_oc["tipo"] == tipo]
+
+                # conta animais únicos com esse tipo
+                animais_doentes = df_tipo["animal_id"].nunique()
+
+                incidencia = (animais_doentes / total_animais) * 100
+
+                dados_tipo.append((tipo, incidencia))
+
+    # dataframe
+            df_tipo = pd.DataFrame(dados_tipo, columns=["Tipo", "Incidência (%)"])
+            df_tipo = df_tipo.set_index("Tipo")
+
+            st.bar_chart(df_tipo)
+
+        else:
+            st.info("Sem dados suficientes para análise por tipo")
+    
         # ---------------------------
         # ALERTAS AUTOMÁTICOS
         # ---------------------------
@@ -240,7 +271,16 @@ elif menu == "Dashboard Sanitário":
                 st.warning(f"🟡 {nome}: Atenção moderada")
             else:
                 st.success(f"🟢 {nome}: Situação controlada")
-        
+
+        st.subheader("🚨 Alertas por tipo")
+
+        for tipo, inc in dados_tipo:
+            if inc > 20:
+                st.error(f"🔴 {tipo}: alta incidência ({inc:.1f}%)")
+            elif inc > 5:
+                st.warning(f"🟡 {tipo}: incidência moderada ({inc:.1f}%)")
+        else:
+            st.success(f"🟢 {tipo}: controle adequado ({inc:.1f}%)")
 # ---------------------------
 # CORRELAÇÃO GMD x OCORRÊNCIAS
 # ---------------------------
