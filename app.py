@@ -227,7 +227,7 @@ elif menu == "Dashboard Sanitário":
 
         df_tipo = pd.DataFrame(dados_tipo, columns=["Tipo", "Incidência (%)"]).set_index("Tipo")
         st.bar_chart(df_tipo)
-    # ---------------------------
+# ---------------------------
 # CURVA EPIDÊMICA
 # ---------------------------
     st.subheader("📈 Curva Epidêmica")
@@ -241,7 +241,7 @@ elif menu == "Dashboard Sanitário":
         curva = df_oc.groupby("data").size()
 
         # ordenar
-         curva = curva.sort_index()
+        curva = curva.sort_index()
 
         # gráfico
         st.line_chart(curva)
