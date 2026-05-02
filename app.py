@@ -151,20 +151,20 @@ elif menu == "Dashboard Sanitário":
 # ---------------------------
 # CRIAR DATAFRAME (ANTES DE USAR)
 # ---------------------------
-        df_oc = pd.DataFrame(
-            todas_ocorrencias,
-            columns=[
-                "id",
-                "animal_id",
-                "data",
-                "tipo",
-                "descricao",
-                "gravidade",
-                "custo",
-                "dias_recuperacao",
-                "status"
-            ]
-        )
+    df_oc = pd.DataFrame(
+        todas_ocorrencias,
+        columns=[
+            "id",
+            "animal_id",
+            "data",
+            "tipo",
+            "descricao",
+            "gravidade",
+            "custo",
+            "dias_recuperacao",
+            "status"
+        ]
+    )
 
 # ---------------------------
 # MÉTRICAS (AGORA SIM)
