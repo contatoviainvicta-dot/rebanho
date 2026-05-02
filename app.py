@@ -227,7 +227,27 @@ elif menu == "Dashboard Sanitário":
 
         df_tipo = pd.DataFrame(dados_tipo, columns=["Tipo", "Incidência (%)"]).set_index("Tipo")
         st.bar_chart(df_tipo)
+    # ---------------------------
+# CURVA EPIDÊMICA
+# ---------------------------
+    st.subheader("📈 Curva Epidêmica")
 
+    if len(df_oc) > 0:
+
+        # garantir formato datetime
+        df_oc["data"] = pd.to_datetime(df_oc["data"])
+
+        # agrupar por dia
+        curva = df_oc.groupby("data").size()
+
+        # ordenar
+         curva = curva.sort_index()
+
+        # gráfico
+        st.line_chart(curva)
+
+    else:
+        st.info("Sem dados suficientes para curva epidêmica")
     # ---------------------------
     # ALERTAS
     # ---------------------------
