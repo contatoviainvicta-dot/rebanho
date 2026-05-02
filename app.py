@@ -137,42 +137,45 @@ elif menu == "Dashboard Sanitário":
 # COLETAR OCORRÊNCIAS
 # ---------------------------
   
-todas_ocorrencias = []
+# ---------------------------
+# COLETAR OCORRÊNCIAS
+# ---------------------------
+    todas_ocorrencias = []
 
-for animal in animais:
-    oc = listar_ocorrencias(animal[0])
-    todas_ocorrencias.extend(oc)
-
-# 🔴 FECHOU O LOOP AQUI
+    for animal in animais:
+        oc = listar_ocorrencias(animal[0])
+        todas_ocorrencias.extend(oc)
 
 # ---------------------------
-# CRIAR DATAFRAME (FORA DO LOOP)
+# CRIAR DATAFRAME
 # ---------------------------
-df_oc = pd.DataFrame(
-    todas_ocorrencias,
-    columns=[
-        "id",
-        "animal_id",
-        "data",
-        "tipo",
-        "descricao",
-        "gravidade",
-        "custo",
-        "dias_recuperacao",
-        "status"
-    ]
-)
+    df_oc = pd.DataFrame(
+        todas_ocorrencias,
+        columns=[
+            "id",
+            "animal_id",
+            "data",
+            "tipo",
+            "descricao",
+            "gravidade",
+            "custo",
+            "dias_recuperacao",
+            "status"
+        ]
+    )
 
 # ---------------------------
-# MÉTRICAS (AGORA SIM)
+# MÉTRICAS
 # ---------------------------
-        total_animais = len(animais)
+    total_animais = len(animais)
 
-        if total_animais > 0:
-            animais_com_oc = df_oc["animal_id"].nunique()
-            incidencia = (animais_com_oc / total_animais) * 100
+    if total_animais > 0:
+        animais_com_oc = df_oc["animal_id"].nunique()
+        incidencia = (animais_com_oc / total_animais) * 100
+    else:
+        incidencia = 0
 
-            st.metric("📊 Incidência (%)", f"{incidencia:.2f}%")
+    st.metric("📊 Incidência (%)", f"{incidencia:.2f}%")
         
     
         # ---------------------------
