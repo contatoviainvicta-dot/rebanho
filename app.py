@@ -631,7 +631,30 @@ elif menu == "Analisar por Lote":
 
                 if ganho > 0:
                     ganho_total += ganho
-                    
+
+        receita = ganho_total * preco_kg
+
+        custo_sanitario = 0
+
+        for animal in animais:
+            ocorrencias = listar_ocorrencias(animal[0])
+    
+            for oc in ocorrencias:
+                if oc[6] is not None:  # coluna custo
+                    custo_sanitario += oc[6]
+
+        lucro = receita - (custo_operacional + custo_sanitario)
+        
+        st.subheader("💰 Resultado Econômico")
+
+        st.write(f"📈 Receita estimada: R$ {receita:.2f}")
+        st.write(f"💸 Custo operacional: R$ {custo_operacional:.2f}")
+        st.write(f"💊 Custo sanitário: R$ {custo_sanitario:.2f}")
+
+        if lucro > 0:
+            st.success(f"🟢 Lucro: R$ {lucro:.2f}")
+        else:
+            st.error(f"🔴 Prejuízo: R$ {lucro:.2f}")
         # ---------------------------
         # EXIBIÇÃO DO GMD
         # ---------------------------
