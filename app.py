@@ -52,7 +52,8 @@ menu = st.sidebar.selectbox(
         "Analisar por Lote",
         "Analisar Animal",
         "Ocorrências Adversas",
-        "Dashboard Sanitário"  # 👈 NOVO
+        "Dashboard Sanitário",
+        "Painel de Decisão"
     ]
 )
 # ---------------------------
