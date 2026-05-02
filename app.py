@@ -235,13 +235,14 @@ elif menu == "Dashboard Sanitário":
     if len(df_oc) > 0:
 
         # garantir formato datetime
-        curva = df_oc.groupby(pd.Grouper(key="data", freq="W")).size()
+        df_oc["data"] = pd.to_datetime(df_oc["data"])
 
         # agrupar por dia
         curva = df_oc.groupby("data").size()
 
         # ordenar
-        curva = curva.sort_index()
+        curva_tipo = df_oc.groupby(["data", "tipo"]).size().unstack(fill_value=0)
+        st.line_chart(curva_tipo)
 
         # gráfico
         st.line_chart(curva)
