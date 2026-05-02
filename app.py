@@ -136,35 +136,34 @@ elif menu == "Dashboard Sanitário":
 # ---------------------------
 # COLETAR OCORRÊNCIAS
 # ---------------------------
-    todas_ocorrencias = []
-       
-    if escolha == "Todos os lotes":
-        animais = listar_animais()
-    else:
-        lote_id = dict_lotes[escolha]
-        animais = listar_animais_por_lote(lote_id)
+   # ---------------------------
+# COLETAR OCORRÊNCIAS
+# ---------------------------
+todas_ocorrencias = []
 
-    for animal in animais:
-        oc = listar_ocorrencias(animal[0])
-        todas_ocorrencias.extend(oc)
+for animal in animais:
+    oc = listar_ocorrencias(animal[0])
+    todas_ocorrencias.extend(oc)
+
+# 🔴 FECHOU O LOOP AQUI
 
 # ---------------------------
-# CRIAR DATAFRAME (ANTES DE USAR)
+# CRIAR DATAFRAME (FORA DO LOOP)
 # ---------------------------
-    df_oc = pd.DataFrame(
-        todas_ocorrencias,
-        columns=[
-            "id",
-            "animal_id",
-            "data",
-            "tipo",
-            "descricao",
-            "gravidade",
-            "custo",
-            "dias_recuperacao",
-            "status"
-        ]
-    )
+df_oc = pd.DataFrame(
+    todas_ocorrencias,
+    columns=[
+        "id",
+        "animal_id",
+        "data",
+        "tipo",
+        "descricao",
+        "gravidade",
+        "custo",
+        "dias_recuperacao",
+        "status"
+    ]
+)
 
 # ---------------------------
 # MÉTRICAS (AGORA SIM)
