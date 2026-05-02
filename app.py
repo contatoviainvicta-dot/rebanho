@@ -235,7 +235,7 @@ elif menu == "Dashboard Sanitário":
     if len(df_oc) > 0:
 
         # garantir formato datetime
-        df_oc["data"] = pd.to_datetime(df_oc["data"])
+        curva = df_oc.groupby(pd.Grouper(key="data", freq="W")).size()
 
         # agrupar por dia
         curva = df_oc.groupby("data").size()
