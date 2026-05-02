@@ -136,14 +136,12 @@ elif menu == "Dashboard Sanitário":
 # ---------------------------
 # COLETAR OCORRÊNCIAS
 # ---------------------------
-   # ---------------------------
-# COLETAR OCORRÊNCIAS
-# ---------------------------
-todas_ocorrencias = []
+  
+    todas_ocorrencias = []
 
-for animal in animais:
-    oc = listar_ocorrencias(animal[0])
-    todas_ocorrencias.extend(oc)
+    for animal in animais:
+        oc = listar_ocorrencias(animal[0])
+        todas_ocorrencias.extend(oc)
 
 # 🔴 FECHOU O LOOP AQUI
 
