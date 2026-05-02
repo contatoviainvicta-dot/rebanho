@@ -655,6 +655,10 @@ elif menu == "Analisar por Lote":
             st.success(f"🟢 Lucro: R$ {lucro:.2f}")
         else:
             st.error(f"🔴 Prejuízo: R$ {lucro:.2f}")
+
+        lucro_por_animal = lucro / len(animais) if len(animais) > 0 else 0
+        st.metric("💰 Lucro por animal", f"R$ {lucro_por_animal:.2f}")
+        st.metric("💊 Custo sanitário total", f"R$ {custo_sanitario:.2f}")
         # ---------------------------
         # EXIBIÇÃO DO GMD
         # ---------------------------
