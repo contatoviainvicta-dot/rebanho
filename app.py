@@ -216,17 +216,17 @@ elif menu == "Dashboard Sanitário":
 
             animais_doentes = oc_lote["animal_id"].nunique()
 
-        if total > 0:
-            incidencia = (animais_doentes / total) * 100
-        else:
-            incidencia = 0
+            if total > 0:
+                incidencia = (animais_doentes / total) * 100
+            else:
+                incidencia = 0
 
-        dados_lote.append((nome_lote, incidencia))
+            dados_lote.append((nome_lote, incidencia))
 
-    df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Incidência (%)"])
-    df_lote = df_lote.set_index("Lote")
+        df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Incidência (%)"])
+        df_lote = df_lote.set_index("Lote")
 
-    st.bar_chart(df_lote)
+        st.bar_chart(df_lote)
 
         # ---------------------------
         # ALERTAS AUTOMÁTICOS
