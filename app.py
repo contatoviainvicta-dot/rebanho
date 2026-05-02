@@ -197,7 +197,7 @@ elif menu == "Dashboard Sanitário":
         # ---------------------------
         # OCORRÊNCIAS POR LOTE
         # ---------------------------
-        st.subheader("🐄 Ocorrências por lote")
+        st.subheader("🐄 Incidência por lote (%)")
 
         dados_lote = []
 
@@ -208,16 +208,25 @@ elif menu == "Dashboard Sanitário":
             nome_lote = lote[1]
 
             animais_lote = listar_animais_por_lote(lote_id)
+            total = len(animais_lote)
+
             ids_animais = [a[0] for a in animais_lote]
 
             oc_lote = df_oc[df_oc["animal_id"].isin(ids_animais)]
 
-            dados_lote.append((nome_lote, len(oc_lote)))
+            animais_doentes = oc_lote["animal_id"].nunique()
 
-        df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Ocorrências"])
-        df_lote = df_lote.set_index("Lote")
+        if total > 0:
+            incidencia = (animais_doentes / total) * 100
+        else:
+            incidencia = 0
 
-        st.bar_chart(df_lote)
+        dados_lote.append((nome_lote, incidencia))
+
+    df_lote = pd.DataFrame(dados_lote, columns=["Lote", "Incidência (%)"])
+    df_lote = df_lote.set_index("Lote")
+
+    st.bar_chart(df_lote)
 
         # ---------------------------
         # ALERTAS AUTOMÁTICOS
