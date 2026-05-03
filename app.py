@@ -1077,110 +1077,58 @@ elif menu == "Analisar Animal":
                         st.success("✅ Animal saudável e produtivo")
 
 # ocorrencia adversa
-elif menu == "Ocorrências Adversas":
-    st.subheader("🚨 Registrar Ocorrência")
-
-    lotes = listar_lotes()
-
-    if len(lotes) == 0:
-        st.warning("Nenhum lote cadastrado")
-
-    else:
-        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
-
-        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
-        lote_id = dict_lotes[escolha_lote]
-
-        animais = listar_animais_por_lote(lote_id)
-
-        if len(animais) == 0:
-            st.warning("Nenhum animal neste lote")
-
-        else:
-            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
-
-            escolha = st.selectbox("Selecione o animal", list(dict_animais.keys()))
-            animal_id = dict_animais[escolha]
-                  
-
-        with st.form("form_ocorrencia"):
-            data = st.date_input("Data")
-            tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
-            descricao = st.text_area("Descrição")
-            gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
-
-            custo = st.number_input("💰 Custo do tratamento (R$)", 0.0)
-            dias = st.number_input("⏱️ Dias de recuperação", 0)
-            status = st.selectbox("Status", ["Em tratamento", "Resolvido"])
-
-            submitted = st.form_submit_button("Salvar Ocorrência")
-
-            if submitted:
-                adicionar_ocorrencia(
-                    animal_id,
-                    str(data),
-                    tipo,
-                    descricao,
-                    gravidade,
-                    custo,
-                    dias,
-                    status
-                )
-
-                st.success("Ocorrência registrada no banco!")
-
 elif menu == "Painel de Decisão":
     st.title("📊 Painel de Decisão")
 
     preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
     custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
 
+    # 🔴 DEFINIR AQUI (antes do loop)
     dados_lotes = []
 
     lotes = listar_lotes()
 
-for lote in lotes:
-    lote_id = lote[0]
-    nome_lote = lote[1]
+    for lote in lotes:
+        lote_id = lote[0]
+        nome_lote = lote[1]
 
-    animais = listar_animais_por_lote(lote_id)
+        animais = listar_animais_por_lote(lote_id)
 
-    ganho_total = 0
-    custo_sanitario = 0
-    dias_total = 0
+        ganho_total = 0
+        custo_sanitario = 0
+        dias_total = 0
 
-    for animal in animais:
-        animal_id = animal[0]
+        for animal in animais:
+            animal_id = animal[0]
 
-        # PESO
-        pesagens = listar_pesagens(animal_id)
+            pesagens = listar_pesagens(animal_id)
 
-        if len(pesagens) > 1:
-            df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-            df["Data"] = pd.to_datetime(df["Data"])
-            df = df.sort_values("Data")
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
 
-            ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
-            dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+                ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
 
-            if ganho > 0 and dias > 0:
-                ganho_total += ganho
-                dias_total += dias
+                if ganho > 0 and dias > 0:
+                    ganho_total += ganho
+                    dias_total += dias
 
-        # OCORRÊNCIAS
-        ocorrencias = listar_ocorrencias(animal_id)
+            ocorrencias = listar_ocorrencias(animal_id)
 
-        for oc in ocorrencias:
-            if oc[6] is not None:
-                custo_sanitario += oc[6]
+            for oc in ocorrencias:
+                if oc[6] is not None:
+                    custo_sanitario += oc[6]
 
-    numero_animais = len(animais)
+        numero_animais = len(animais)
 
-    custo_operacional = custo_diario * numero_animais * dias_total
-    receita = ganho_total * preco_kg
-    lucro = receita - (custo_operacional + custo_sanitario)
+        custo_operacional = custo_diario * numero_animais * dias_total
+        receita = ganho_total * preco_kg
+        lucro = receita - (custo_operacional + custo_sanitario)
 
-    dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
+        # 🔴 AGORA FUNCIONA
+        dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
 
 # dataframe
 df_decisao = pd.DataFrame(
