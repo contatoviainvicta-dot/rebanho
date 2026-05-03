@@ -1354,9 +1354,45 @@ elif menu == "Pesquisar Ocorrências":
     # ---------------------------
     # EXIBIR RESULTADOS
     # ---------------------------
+            # ---------------------------
+# EXIBIR RESULTADOS
+# ---------------------------
     st.subheader("📊 Resultados")
 
     if len(df_oc) > 0:
         st.dataframe(df_oc)
+
+    # ---------------------------
+    # ANÁLISE DAS OCORRÊNCIAS
+    # ---------------------------
+
+    # 1. CUSTO TOTAL
+        custo_total = df_oc["custo"].fillna(0).sum()
+        st.metric("💰 Custo total", f"R$ {custo_total:.2f}")
+
+    # 2. OCORRÊNCIAS POR TIPO
+        st.subheader("📊 Ocorrências por tipo")
+        st.bar_chart(df_oc["tipo"].value_counts())
+
+    # 3. ALERTA AUTOMÁTICO
+        if len(df_oc) >= 10:
+            st.error("🚨 Alta incidência de ocorrências")
+        elif len(df_oc) >= 5:
+            st.warning("⚠️ Incidência moderada")
+        else:
+            st.success("✅ Baixa incidência")
+
+    # 4. DOENÇA MAIS CARA
+        custo_por_tipo = df_oc.groupby("tipo")["custo"].sum()
+
+        if len(custo_por_tipo) > 0:
+            tipo_mais_caro = custo_por_tipo.idxmax()
+            valor_mais_caro = custo_por_tipo.max()
+
+            st.warning(
+            f"💸 Maior impacto econômico: {tipo_mais_caro} "
+            f"(R$ {valor_mais_caro:.2f})"
+            )
+
     else:
         st.info("Nenhuma ocorrência encontrada com esses filtros")
