@@ -53,7 +53,8 @@ menu = st.sidebar.selectbox(
         "Analisar Animal",
         "Ocorrências Adversas",
         "Dashboard Sanitário",
-        "Painel de Decisão"
+        "Painel de Decisão",
+        ""Pesquisar Ocorrências"
     ]
 )
 # ---------------------------
