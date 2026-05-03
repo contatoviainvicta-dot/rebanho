@@ -1268,3 +1268,95 @@ elif menu == "Painel de Decisão":
 
         else:
             st.success(f"🟢 {row['Lote']}: operação saudável")
+
+# ---------------------------
+# PESQUISAR OCORRÊNCIAS
+# ---------------------------
+elif menu == "Pesquisar Ocorrências":
+    st.title("🔎 Pesquisa de Ocorrências")
+
+    lotes = listar_lotes()
+
+    # ---------------------------
+    # FILTRO POR LOTE
+    # ---------------------------
+    dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+    escolha_lote = st.selectbox(
+        "Filtrar por lote",
+        ["Todos"] + list(dict_lotes.keys())
+    )
+
+    # ---------------------------
+    # FILTRO POR TIPO
+    # ---------------------------
+    tipo = st.selectbox(
+        "Tipo",
+        ["Todos", "Doença", "Lesão", "Medicamento", "Outros"]
+    )
+
+    # ---------------------------
+    # FILTRO POR GRAVIDADE
+    # ---------------------------
+    gravidade = st.selectbox(
+        "Gravidade",
+        ["Todas", "Baixa", "Média", "Alta"]
+    )
+
+    # ---------------------------
+    # COLETAR OCORRÊNCIAS
+    # ---------------------------
+    todas_ocorrencias = []
+
+    if escolha_lote == "Todos":
+        animais = listar_animais()
+    else:
+        lote_id = dict_lotes[escolha_lote]
+        animais = listar_animais_por_lote(lote_id)
+
+    for animal in animais:
+        oc = listar_ocorrencias(animal[0])
+        todas_ocorrencias.extend(oc)
+
+    # ---------------------------
+    # DATAFRAME
+    # ---------------------------
+    df_oc = pd.DataFrame(
+        todas_ocorrencias,
+        columns=[
+            "id",
+            "animal_id",
+            "data",
+            "tipo",
+            "descricao",
+            "gravidade",
+            "custo",
+            "dias_recuperacao",
+            "status"
+        ]
+    )
+
+    # ---------------------------
+    # APLICAR FILTROS
+    # ---------------------------
+    if len(df_oc) > 0:
+
+        if tipo != "Todos":
+            df_oc = df_oc[df_oc["tipo"] == tipo]
+
+        if gravidade != "Todas":
+            df_oc = df_oc[df_oc["gravidade"] == gravidade]
+
+        # ordenar por data (opcional, mas recomendado)
+        df_oc["data"] = pd.to_datetime(df_oc["data"])
+        df_oc = df_oc.sort_values(by="data", ascending=False)
+
+    # ---------------------------
+    # EXIBIR RESULTADOS
+    # ---------------------------
+    st.subheader("📊 Resultados")
+
+    if len(df_oc) > 0:
+        st.dataframe(df_oc)
+    else:
+        st.info("Nenhuma ocorrência encontrada com esses filtros")
