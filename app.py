@@ -1132,12 +1132,12 @@ elif menu == "Ocorrências Adversas":
 elif menu == "Painel de Decisão":
     st.title("📊 Painel de Decisão")
 
-preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
-custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
+    preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
+    custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
 
-dados_lotes = []
+    dados_lotes = []
 
-lotes = listar_lotes()
+    lotes = listar_lotes()
 
 for lote in lotes:
     lote_id = lote[0]
@@ -1192,11 +1192,20 @@ df_decisao = df_decisao.sort_values(by="Lucro", ascending=False)
 
 st.subheader("📈 Visão Geral")
 
-total_lucro = df_decisao["Lucro"].sum()
-st.metric("💰 Lucro total", f"R$ {total_lucro:.2f}")
+if len(df_decisao) > 0:
 
-melhor = df_decisao.iloc[0]
-pior = df_decisao.iloc[-1]
+    total_lucro = df_decisao["Lucro"].sum()
+    st.metric("💰 Lucro total", f"R$ {total_lucro:.2f}")
+
+    melhor = df_decisao.iloc[0]
+    pior = df_decisao.iloc[-1]
+
+    st.success(f"🥇 Melhor lote: {melhor['Lote']} (R$ {melhor['Lucro']:.2f})")
+    st.error(f"🔴 Pior lote: {pior['Lote']} (R$ {pior['Lucro']:.2f})")
+
+else:
+    st.warning("Nenhum lote com dados suficientes")
+    st.stop()
 
 st.success(f"🥇 Melhor lote: {melhor['Lote']} (R$ {melhor['Lucro']:.2f})")
 st.error(f"🔴 Pior lote: {pior['Lote']} (R$ {pior['Lucro']:.2f})")
