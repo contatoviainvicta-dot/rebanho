@@ -54,7 +54,7 @@ menu = st.sidebar.selectbox(
         "Ocorrências Adversas",
         "Dashboard Sanitário",
         "Painel de Decisão",
-        ""Pesquisar Ocorrências"
+        "Pesquisar Ocorrências"
     ]
 )
 # ---------------------------
