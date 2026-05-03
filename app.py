@@ -1076,14 +1076,16 @@ elif menu == "Analisar Animal":
                     else:
                         st.success("✅ Animal saudável e produtivo")
 
-# ocorrencia adversa
+
+# ---------------------------
+# PAINEL DE DECISÃO
+# ---------------------------
 elif menu == "Painel de Decisão":
     st.title("📊 Painel de Decisão")
 
     preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
     custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
 
-    # 🔴 DEFINIR AQUI (antes do loop)
     dados_lotes = []
 
     lotes = listar_lotes()
@@ -1127,55 +1129,60 @@ elif menu == "Painel de Decisão":
         receita = ganho_total * preco_kg
         lucro = receita - (custo_operacional + custo_sanitario)
 
-        # 🔴 AGORA FUNCIONA
         dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
 
-# dataframe
-df_decisao = pd.DataFrame(
-    dados_lotes,
-    columns=["Lote", "Lucro", "Receita", "Custo Operacional", "Custo Sanitário"]
-)
+    # ---------------------------
+    # DATAFRAME
+    # ---------------------------
+    df_decisao = pd.DataFrame(
+        dados_lotes,
+        columns=["Lote", "Lucro", "Receita", "Custo Operacional", "Custo Sanitário"]
+    )
 
-df_decisao = df_decisao.sort_values(by="Lucro", ascending=False)
+    df_decisao = df_decisao.sort_values(by="Lucro", ascending=False)
 
-st.subheader("📈 Visão Geral")
+    st.subheader("📈 Visão Geral")
 
-if len(df_decisao) > 0:
+    if len(df_decisao) > 0:
 
-    total_lucro = df_decisao["Lucro"].sum()
-    st.metric("💰 Lucro total", f"R$ {total_lucro:.2f}")
+        total_lucro = df_decisao["Lucro"].sum()
+        st.metric("💰 Lucro total", f"R$ {total_lucro:.2f}")
 
-    melhor = df_decisao.iloc[0]
-    pior = df_decisao.iloc[-1]
+        melhor = df_decisao.iloc[0]
+        pior = df_decisao.iloc[-1]
 
-    st.success(f"🥇 Melhor lote: {melhor['Lote']} (R$ {melhor['Lucro']:.2f})")
-    st.error(f"🔴 Pior lote: {pior['Lote']} (R$ {pior['Lucro']:.2f})")
-
-else:
-    st.warning("Nenhum lote com dados suficientes")
-    st.stop()
-
-st.success(f"🥇 Melhor lote: {melhor['Lote']} (R$ {melhor['Lucro']:.2f})")
-st.error(f"🔴 Pior lote: {pior['Lote']} (R$ {pior['Lucro']:.2f})")
-
-st.subheader("📊 Ranking de Lotes")
-
-st.dataframe(df_decisao)
-
-st.subheader("📉 Lucro por lote")
-
-df_plot = df_decisao.set_index("Lote")["Lucro"]
-st.bar_chart(df_plot)
-
-st.subheader("🚨 Alertas de Decisão")
-
-for _, row in df_decisao.iterrows():
-
-    if row["Lucro"] < 0:
-        st.error(f"🔴 {row['Lote']}: prejuízo → revisar manejo urgente")
-
-    elif row["Custo Sanitário"] > row["Receita"] * 0.2:
-        st.warning(f"🟡 {row['Lote']}: custo sanitário elevado")
+        st.success(f"🥇 Melhor lote: {melhor['Lote']} (R$ {melhor['Lucro']:.2f})")
+        st.error(f"🔴 Pior lote: {pior['Lote']} (R$ {pior['Lucro']:.2f})")
 
     else:
-        st.success(f"🟢 {row['Lote']}: operação saudável")
+        st.warning("Nenhum lote com dados suficientes")
+        st.stop()
+
+    # ---------------------------
+    # RANKING
+    # ---------------------------
+    st.subheader("📊 Ranking de Lotes")
+    st.dataframe(df_decisao)
+
+    # ---------------------------
+    # GRÁFICO
+    # ---------------------------
+    st.subheader("📉 Lucro por lote")
+    df_plot = df_decisao.set_index("Lote")["Lucro"]
+    st.bar_chart(df_plot)
+
+    # ---------------------------
+    # ALERTAS
+    # ---------------------------
+    st.subheader("🚨 Alertas de Decisão")
+
+    for _, row in df_decisao.iterrows():
+
+        if row["Lucro"] < 0:
+            st.error(f"🔴 {row['Lote']}: prejuízo → revisar manejo urgente")
+
+        elif row["Custo Sanitário"] > row["Receita"] * 0.2:
+            st.warning(f"🟡 {row['Lote']}: custo sanitário elevado")
+
+        else:
+            st.success(f"🟢 {row['Lote']}: operação saudável")
