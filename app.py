@@ -1076,7 +1076,69 @@ elif menu == "Analisar Animal":
                     else:
                         st.success("✅ Animal saudável e produtivo")
 
+# ---------------------------
+# OCORRÊNCIAS ADVERSAS
+# ---------------------------
+elif menu == "Ocorrências Adversas":
+    st.subheader("🚨 Registrar Ocorrência")
 
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+
+    else:
+        # ---------------------------
+        # SELEÇÃO DE LOTE
+        # ---------------------------
+        dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+        escolha_lote = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+        lote_id = dict_lotes[escolha_lote]
+
+        # ---------------------------
+        # SELEÇÃO DE ANIMAL
+        # ---------------------------
+        animais = listar_animais_por_lote(lote_id)
+
+        if len(animais) == 0:
+            st.warning("Nenhum animal neste lote")
+
+        else:
+            dict_animais = {f"{a[1]} (ID {a[0]})": a[0] for a in animais}
+
+            escolha_animal = st.selectbox("Selecione o animal", list(dict_animais.keys()))
+            animal_id = dict_animais[escolha_animal]
+
+            # ---------------------------
+            # FORMULÁRIO
+            # ---------------------------
+            with st.form("form_ocorrencia"):
+                data = st.date_input("Data")
+                tipo = st.selectbox("Tipo", ["Doença", "Lesão", "Medicamento", "Outros"])
+                descricao = st.text_area("Descrição")
+                gravidade = st.selectbox("Gravidade", ["Baixa", "Média", "Alta"])
+
+                custo = st.number_input("💰 Custo do tratamento (R$)", 0.0)
+                dias = st.number_input("⏱️ Dias de recuperação", 0)
+                status = st.selectbox("Status", ["Em tratamento", "Resolvido"])
+
+                submitted = st.form_submit_button("Salvar Ocorrência")
+
+                if submitted:
+                    adicionar_ocorrencia(
+                        animal_id,
+                        str(data),
+                        tipo,
+                        descricao,
+                        gravidade,
+                        custo,
+                        dias,
+                        status
+                    )
+
+                    st.success("Ocorrência registrada com sucesso!")
+                    
 # ---------------------------
 # PAINEL DE DECISÃO
 # ---------------------------
