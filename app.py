@@ -1396,3 +1396,88 @@ elif menu == "Pesquisar Ocorrências":
 
     else:
         st.info("Nenhuma ocorrência encontrada com esses filtros")
+
+# ---------------------------
+# ALERTAS AUTOMÁTICOS INTELIGENTES
+# ---------------------------
+st.subheader("🧠 Alertas Inteligentes")
+
+for lote in listar_lotes():
+
+    lote_id = lote[0]
+    nome_lote = lote[1]
+
+    animais = listar_animais_por_lote(lote_id)
+    total_animais = len(animais)
+
+    if total_animais == 0:
+        continue
+
+    todas_ocorrencias = []
+    gmds = []
+    custo_total = 0
+
+    for animal in animais:
+        animal_id = animal[0]
+
+        # OCORRÊNCIAS
+        oc = listar_ocorrencias(animal_id)
+        todas_ocorrencias.extend(oc)
+
+        for o in oc:
+            if o[6] is not None:
+                custo_total += o[6]
+
+        # GMD
+        pesagens = listar_pesagens(animal_id)
+
+        if len(pesagens) > 1:
+            df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+            df["Data"] = pd.to_datetime(df["Data"])
+            df = df.sort_values("Data")
+
+            ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+            dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+            if dias > 0:
+                gmd = ganho / dias
+                if 0 <= gmd <= 2:
+                    gmds.append(gmd)
+
+    # ---------------------------
+    # CÁLCULOS
+    # ---------------------------
+    incidencia = 0
+    if len(todas_ocorrencias) > 0:
+        animais_doentes = len(set([o[1] for o in todas_ocorrencias]))
+        incidencia = (animais_doentes / total_animais) * 100
+
+    gmd_medio = sum(gmds) / len(gmds) if len(gmds) > 0 else 0
+
+    # ---------------------------
+    # ALERTAS
+    # ---------------------------
+
+    # 🔴 CRÍTICO
+    if incidencia > 20 and gmd_medio < 0.5:
+        st.error(
+            f"🔴 {nome_lote}: Alta incidência ({incidencia:.1f}%) + baixo GMD ({gmd_medio:.2f}) → possível problema sanitário grave"
+        )
+
+    # 🟡 ECONÔMICO
+    elif custo_total > 1000:
+        st.warning(
+            f"🟡 {nome_lote}: Custo sanitário elevado (R$ {custo_total:.2f})"
+        )
+
+    # 🟠 SURTO (tendência temporal simples)
+    elif len(todas_ocorrencias) >= 5:
+        st.warning(
+            f"🟠 {nome_lote}: Aumento de ocorrências → monitorar possível surto"
+        )
+
+    # 🟢 SAUDÁVEL
+    else:
+        st.success(
+            f"🟢 {nome_lote}: Situação controlada (Incidência {incidencia:.1f}%, GMD {gmd_medio:.2f})"
+        )
