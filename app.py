@@ -1520,7 +1520,6 @@ for lote in listar_lotes():
             f"🟢 {nome_lote}: Situação controlada (Incidência {incidencia:.1f}%, GMD {gmd_medio:.2f})"
         )
 # dashboard executivo
-
 elif menu == "Dashboard Executivo":
     st.title("📊 Dashboard Executivo")
 
