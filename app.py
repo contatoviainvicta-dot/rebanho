@@ -1166,6 +1166,12 @@ elif menu == "Painel de Decisão":
     st.title("📊 Painel de Decisão")
 
     # ---------------------------
+    # PARÂMETROS ECONÔMICOS
+    # ---------------------------
+    preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
+    custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
+
+    # ---------------------------
     # MODO DE ANÁLISE
     # ---------------------------
     opcao = st.selectbox(
@@ -1182,7 +1188,7 @@ elif menu == "Painel de Decisão":
     dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
 
     # ---------------------------
-    # SELEÇÃO DE LOTE
+    # DEFINIR LOTES PARA ANÁLISE
     # ---------------------------
     if opcao == "Selecionar lote específico":
         escolha = st.selectbox("Escolha o lote", list(dict_lotes.keys()))
@@ -1195,46 +1201,52 @@ elif menu == "Painel de Decisão":
     else:
         lotes_para_analise = lotes
 
-        for lote in lotes_para_analise:
-            lote_id = lote[0]
-            nome_lote = lote[1]
+    # 🔴 ESSENCIAL (ANTES DO LOOP)
+    dados_lotes = []
 
-            animais = listar_animais_por_lote(lote_id)
+    # ---------------------------
+    # PROCESSAMENTO
+    # ---------------------------
+    for lote in lotes_para_analise:
+        lote_id = lote[0]
+        nome_lote = lote[1]
 
-            ganho_total = 0
-            custo_sanitario = 0
-            dias_total = 0
+        animais = listar_animais_por_lote(lote_id)
 
-            for animal in animais:
-                animal_id = animal[0]
+        ganho_total = 0
+        custo_sanitario = 0
+        dias_total = 0
 
-                pesagens = listar_pesagens(animal_id)
+        for animal in animais:
+            animal_id = animal[0]
 
-                if len(pesagens) > 1:
-                    df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                    df["Data"] = pd.to_datetime(df["Data"])
-                    df = df.sort_values("Data")
+            pesagens = listar_pesagens(animal_id)
 
-                    ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
-                    dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+            if len(pesagens) > 1:
+                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                df["Data"] = pd.to_datetime(df["Data"])
+                df = df.sort_values("Data")
 
-                    if ganho > 0 and dias > 0:
-                        ganho_total += ganho
-                        dias_total += dias
+                ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
 
-                ocorrencias = listar_ocorrencias(animal_id)
+                if ganho > 0 and dias > 0:
+                    ganho_total += ganho
+                    dias_total += dias
 
-                for oc in ocorrencias:
-                    if oc[6] is not None:
-                        custo_sanitario += oc[6]
+            ocorrencias = listar_ocorrencias(animal_id)
 
-            numero_animais = len(animais)
+            for oc in ocorrencias:
+                if oc[6] is not None:
+                    custo_sanitario += oc[6]
 
-            custo_operacional = custo_diario * numero_animais * dias_total
-            receita = ganho_total * preco_kg
-            lucro = receita - (custo_operacional + custo_sanitario)
+        numero_animais = len(animais)
 
-            dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
+        custo_operacional = custo_diario * numero_animais * dias_total
+        receita = ganho_total * preco_kg
+        lucro = receita - (custo_operacional + custo_sanitario)
+
+        dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
 
     # ---------------------------
     # DATAFRAME
