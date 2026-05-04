@@ -46,6 +46,7 @@ st.title("🐄 Gestão de Rebanho - v3.1")
 menu = st.sidebar.selectbox(
     "Menu",
     [
+        "Dashboard Executivo",
         "Cadastrar Lote",
         "Cadastrar Animal",
         "Registrar Pesagem",
@@ -57,6 +58,123 @@ menu = st.sidebar.selectbox(
         "Pesquisar Ocorrências"
     ]
 )
+
+elif menu == "Dashboard Executivo":
+    st.title("📊 Dashboard Executivo")
+
+    # ---------------------------
+    # PARÂMETROS
+    # ---------------------------
+    preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
+    custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
+
+    # ---------------------------
+    # SELEÇÃO DE LOTE
+    # ---------------------------
+    lotes = listar_lotes()
+
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+        st.stop()
+
+    dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+    escolha = st.selectbox("Selecione o lote", list(dict_lotes.keys()))
+    lote_id = dict_lotes[escolha]
+
+    animais = listar_animais_por_lote(lote_id)
+
+    if len(animais) == 0:
+        st.warning("Nenhum animal no lote")
+        st.stop()
+
+    # ---------------------------
+    # CÁLCULOS
+    # ---------------------------
+    ganho_total = 0
+    custo_sanitario = 0
+    dias_total = 0
+    animais_com_oc = set()
+    gmds = []
+
+    for animal in animais:
+        animal_id = animal[0]
+
+        # PESAGENS
+        pesagens = listar_pesagens(animal_id)
+
+        if len(pesagens) > 1:
+            df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+            df["Data"] = pd.to_datetime(df["Data"])
+            df = df.sort_values("Data")
+
+            ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+            dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+
+            if ganho > 0 and dias > 0:
+                ganho_total += ganho
+                dias_total += dias
+
+                gmd = ganho / dias
+                if 0 <= gmd <= 2:
+                    gmds.append(gmd)
+
+        # OCORRÊNCIAS
+        ocorrencias = listar_ocorrencias(animal_id)
+
+        if len(ocorrencias) > 0:
+            animais_com_oc.add(animal_id)
+
+        for oc in ocorrencias:
+            if oc[6] is not None:
+                custo_sanitario += oc[6]
+
+    numero_animais = len(animais)
+
+    custo_operacional = custo_diario * numero_animais * dias_total
+    receita = ganho_total * preco_kg
+    lucro = receita - (custo_operacional + custo_sanitario)
+
+    # ---------------------------
+    # MÉTRICAS
+    # ---------------------------
+    incidencia = (len(animais_com_oc) / numero_animais) * 100 if numero_animais > 0 else 0
+    gmd_medio = sum(gmds) / len(gmds) if len(gmds) > 0 else 0
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric("💰 Lucro", f"R$ {lucro:.2f}")
+    col2.metric("🦠 Incidência", f"{incidencia:.2f}%")
+    col3.metric("📈 GMD", f"{gmd_medio:.3f} kg/dia")
+
+    # ---------------------------
+    # STATUS INTELIGENTE
+    # ---------------------------
+    st.subheader("🚨 Status do Lote")
+
+    if lucro < 0:
+        st.error("🔴 Prejuízo → ação imediata necessária")
+
+    elif incidencia > 20:
+        st.error("🔴 Alta incidência sanitária")
+
+    elif gmd_medio < 0.5:
+        st.warning("🟡 Baixo desempenho produtivo")
+
+    elif custo_sanitario > receita * 0.2:
+        st.warning("🟡 Custo sanitário elevado")
+
+    else:
+        st.success("🟢 Lote saudável e lucrativo")
+
+    # ---------------------------
+    # RESUMO RÁPIDO
+    # ---------------------------
+    st.subheader("📋 Resumo")
+
+    st.write(f"🐄 Animais: {numero_animais}")
+    st.write(f"⚖️ Ganho total: {ganho_total:.2f} kg")
+    st.write(f"💸 Custo sanitário: R$ {custo_sanitario:.2f}")
 # ---------------------------
 # CADASTRAR LOTE
 # ---------------------------
