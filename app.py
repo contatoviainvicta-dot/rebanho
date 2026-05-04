@@ -1165,14 +1165,37 @@ elif menu == "Ocorrências Adversas":
 elif menu == "Painel de Decisão":
     st.title("📊 Painel de Decisão")
 
-    preco_kg = st.number_input("Preço do kg (R$)", 0.0, 50.0, 10.0)
-    custo_diario = st.number_input("Custo diário por animal (R$)", 0.0, 100.0, 10.0)
-
-    dados_lotes = []
+    # ---------------------------
+    # MODO DE ANÁLISE
+    # ---------------------------
+    opcao = st.selectbox(
+        "Modo de análise",
+        ["Todos os lotes", "Selecionar lote específico"]
+    )
 
     lotes = listar_lotes()
 
-    for lote in lotes:
+    if len(lotes) == 0:
+        st.warning("Nenhum lote cadastrado")
+        st.stop()
+
+    dict_lotes = {f"{l[1]} (ID {l[0]})": l[0] for l in lotes}
+
+    # ---------------------------
+    # SELEÇÃO DE LOTE
+    # ---------------------------
+    if opcao == "Selecionar lote específico":
+        escolha = st.selectbox("Escolha o lote", list(dict_lotes.keys()))
+        lote_id_escolhido = dict_lotes[escolha]
+
+        st.info(f"📊 Analisando apenas: {escolha}")
+
+        lotes_para_analise = [l for l in lotes if l[0] == lote_id_escolhido]
+
+    else:
+        lotes_para_analise = lotes
+
+    for lote in lotes_para_analise:
         lote_id = lote[0]
         nome_lote = lote[1]
 
