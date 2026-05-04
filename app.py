@@ -1195,46 +1195,46 @@ elif menu == "Painel de Decisão":
     else:
         lotes_para_analise = lotes
 
-    for lote in lotes_para_analise:
-        lote_id = lote[0]
-        nome_lote = lote[1]
+        for lote in lotes_para_analise:
+            lote_id = lote[0]
+            nome_lote = lote[1]
 
-        animais = listar_animais_por_lote(lote_id)
+            animais = listar_animais_por_lote(lote_id)
 
-        ganho_total = 0
-        custo_sanitario = 0
-        dias_total = 0
+            ganho_total = 0
+            custo_sanitario = 0
+            dias_total = 0
 
-        for animal in animais:
-            animal_id = animal[0]
+            for animal in animais:
+                animal_id = animal[0]
 
-            pesagens = listar_pesagens(animal_id)
+                pesagens = listar_pesagens(animal_id)
 
-            if len(pesagens) > 1:
-                df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
-                df["Data"] = pd.to_datetime(df["Data"])
-                df = df.sort_values("Data")
+                if len(pesagens) > 1:
+                    df = pd.DataFrame(pesagens, columns=["ID", "Animal", "Peso", "Data"])
+                    df["Data"] = pd.to_datetime(df["Data"])
+                    df = df.sort_values("Data")
 
-                ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
-                dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
+                    ganho = df["Peso"].iloc[-1] - df["Peso"].iloc[0]
+                    dias = (df["Data"].iloc[-1] - df["Data"].iloc[0]).days
 
-                if ganho > 0 and dias > 0:
-                    ganho_total += ganho
-                    dias_total += dias
+                    if ganho > 0 and dias > 0:
+                        ganho_total += ganho
+                        dias_total += dias
 
-            ocorrencias = listar_ocorrencias(animal_id)
+                ocorrencias = listar_ocorrencias(animal_id)
 
-            for oc in ocorrencias:
-                if oc[6] is not None:
-                    custo_sanitario += oc[6]
+                for oc in ocorrencias:
+                    if oc[6] is not None:
+                        custo_sanitario += oc[6]
 
-        numero_animais = len(animais)
+            numero_animais = len(animais)
 
-        custo_operacional = custo_diario * numero_animais * dias_total
-        receita = ganho_total * preco_kg
-        lucro = receita - (custo_operacional + custo_sanitario)
+            custo_operacional = custo_diario * numero_animais * dias_total
+            receita = ganho_total * preco_kg
+            lucro = receita - (custo_operacional + custo_sanitario)
 
-        dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
+            dados_lotes.append((nome_lote, lucro, receita, custo_operacional, custo_sanitario))
 
     # ---------------------------
     # DATAFRAME
